@@ -1,0 +1,29 @@
+{
+    "name": "white-nl/commerce-mollie-plus",
+    "description": "Commerce Mollie Plus Plugin for Craft 3",
+    "type": "craft-plugin",
+    "license": "proprietary",
+    "require": {
+        "craftcms/cms": "^3.1.5",
+        "craftcms/commerce": "^2.0|^3.0",
+        "craftcms/commerce-omnipay": "^2.0.0",
+        "omnipay/mollie": "^5.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6.4"
+    },
+    "autoload": {
+        "psr-4": {
+          "white\\commerce\\mollie\\plus\\": "src/"
+        }
+    },
+    "extra": {
+        "handle": "commerce-mollie-plus",
+        "name": "Commerce Mollie Plus",
+        "developer": "Digital Agency WHITE",
+        "developerUrl": "https://white.nl",
+        "hasCpSettings": false,
+        "hasCpSection": false,
+        "class": "white\\commerce\\mollie\\plus\\CommerceMolliePlusPlugin"
+    }
+}

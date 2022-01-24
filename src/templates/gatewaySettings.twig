@@ -1,0 +1,37 @@
+{% from "_includes/forms" import autosuggestField, multiselectField %}
+
+{{ autosuggestField({
+    label: 'API Key'|t('commerce'),
+    id: 'apiKey',
+    class: 'ltr',
+    name: 'apiKey',
+    suggestEnvVars: true,
+    value: gateway.apiKey,
+    errors: gateway.getErrors('apiKey')
+}) }}
+                
+{{ multiselectField({
+    label:        "Order status for automatic capture"|t('commerce-mollie-plus'),
+    instructions: "When a Craft order status changes to one of these, any uncaptured Mollie transactions associated with it are going to be captured automatically."|t('commerce-mollie-plus'),
+    id:           'orderStatusToCapture',
+    name:         'orderStatusToCapture',
+    options:      gateway.getOrderStatusOptions(),
+    values:       gateway.orderStatusToCapture,
+    errors:       gateway.getErrors('orderStatusToCapture'),
+    class: 'selectize fullwidth',
+}) }}
+
+
+{% js %}
+    $('#types-white-commerce-mollie-plus-gateways-Gateway-orderStatusToCapture').selectize({
+        plugins: ['remove_button'],
+        dropdownParent: 'body'
+    });
+{% endjs %}
+{% css %}
+    body .selectize-dropdown-content > div[data-value="new"]:before,
+    body .selectize-dropdown-content > div[data-value="new"]:after {
+        content: '';
+        margin-right: 0;
+    }
+{% endcss %}

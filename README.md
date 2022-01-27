@@ -31,10 +31,6 @@ You can also install the Mollie Plus plugin using the Plugin Store in the Craft 
 
 
 
-## Activate your license
-
-This plugin requires a commercial license. After successfully installing the plugin, you’ll see an alert bar in Craft. Click this bar to activate your license in the Craft plugin store using your Craft ID.
-
 ## "Mollie Plus" versus "Mollie for Craft Commerce"
 
 Mollie plus is a drop-in replacement[^1] for Pixel & Tonic’s Mollie for Commerce plugin. We advise to replace it by Mollie Plus. It will be a seamless transition, since they function similarly.

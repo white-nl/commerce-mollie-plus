@@ -447,7 +447,15 @@ class Gateway extends OffsiteGateway
         }
         
         $request = parent::createPaymentRequest($transaction, $card, $itemBag);
-        $request['orderNumber'] = $transaction->order->number;
+	    $referenceTemplate = Commerce::getInstance()->getSettings()->orderReferenceFormat;
+
+	    try {
+		    $orderNumber = Craft::$app->getView()->renderObjectTemplate($referenceTemplate, $transaction->order);
+	    } catch (Throwable $exception) {
+		    $orderNumber = $transaction->order->number;
+	    }
+
+	    $request['orderNumber'] = $orderNumber;
         
         if (!empty($transaction->note)) {
             $request['description'] = $transaction->note;

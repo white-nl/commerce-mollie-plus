@@ -35,4 +35,12 @@ class RequestResponse extends \craft\commerce\omnipay\base\RequestResponse
             ? ($this->response->getData()['orderId'] ?? $this->response->getTransactionReference())
             : $this->response->getTransactionReference();
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function isSuccessful(): bool
+    {
+        return $this->response->isSuccessful() || $this->response->isAuthorized();
+    }
 }

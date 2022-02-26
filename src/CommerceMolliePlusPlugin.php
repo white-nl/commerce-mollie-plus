@@ -11,15 +11,23 @@ use craft\commerce\services\Gateways;
 use craft\events\ModelEvent;
 use craft\events\RegisterComponentTypesEvent;
 use white\commerce\mollie\plus\gateways\Gateway;
+use white\commerce\mollie\plus\models\Settings;
 use yii\base\Event;
 
 /**
  */
 class CommerceMolliePlusPlugin extends Plugin
 {
+    /**
+     * @var CommerceMolliePlusPlugin
+     */
+    public static $plugin;
+
     public function init()
     {
         parent::init();
+
+        self::$plugin = $this;
 
         Event::on(Gateways::class, Gateways::EVENT_REGISTER_GATEWAY_TYPES,  function(RegisterComponentTypesEvent $event) {
             $event->types[] = Gateway::class;
@@ -54,5 +62,13 @@ class CommerceMolliePlusPlugin extends Plugin
                 }
             }
         );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function createSettingsModel(): Settings
+    {
+        return new Settings();
     }
 }

@@ -10,6 +10,7 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
 use Omnipay\Common\Message\AbstractRequest;
+use white\commerce\mollie\plus\CommerceMolliePlusPlugin;
 use white\commerce\mollie\plus\models\RequestResponse;
 use craft\commerce\omnipay\base\OffsiteGateway;
 use craft\commerce\Plugin as Commerce;
@@ -447,7 +448,9 @@ class Gateway extends OffsiteGateway
         }
         
         $request = parent::createPaymentRequest($transaction, $card, $itemBag);
-        $request['orderNumber'] = $transaction->order->number;
+
+        $orderIdentifier = CommerceMolliePlusPlugin::$plugin->settings->orderIdAttribute;
+        $request['orderNumber'] = $transaction->order->{$orderIdentifier};
         
         if (!empty($transaction->note)) {
             $request['description'] = $transaction->note;

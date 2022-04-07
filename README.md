@@ -29,7 +29,22 @@ To install Mollie Plus plugin for Craft CMS, follow these steps:
 
 You can also install the Mollie Plus plugin using the Plugin Store in the Craft Control Panel. Go to Settings → Plugins and click the “Install” button for Commerce Mollie Plus.
 
+## Customize mollie payload
+You can change the payload that's been sent to Mollie by hooking into the event
 
+```
+use white\commerce\mollie\plus\gateways;
+use white\commerce\mollie\plus\events\CreatePaymentRequestEvent;
+
+Event::on(
+   Gateway::class,
+   Gateway::EVENT_CREATE_PAYMENT_REQUEST,
+   function (CreatePaymentRequestEvent $event)
+   {
+       $event->request['orderNumber'] = $event->transaction->order->id;
+   }
+);
+```
 
 ## "Mollie Plus" versus "Mollie for Craft Commerce"
 

@@ -10,6 +10,7 @@ use craft\commerce\helpers\Currency;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
 use Omnipay\Common\Message\AbstractRequest;
+use white\commerce\mollie\plus\events\CreatePaymentRequestEvent;
 use white\commerce\mollie\plus\models\RequestResponse;
 use craft\commerce\omnipay\base\OffsiteGateway;
 use craft\commerce\Plugin as Commerce;
@@ -39,6 +40,11 @@ class Gateway extends OffsiteGateway
      * @inheritdoc
      */
     public $sendCartInfo = true;
+
+    /**
+     * Event to mutate the request payload
+     */
+    const EVENT_CREATE_PAYMENT_REQUEST = 'createPaymentRequestEvent';
 
     /**
      * @inheritdoc
@@ -491,6 +497,14 @@ class Gateway extends OffsiteGateway
 
         $request['locale'] = $orderLanguage;
 
+
+        if($this->hasEventHandlers(static::EVENT_CREATE_PAYMENT_REQUEST)) {
+            $event = new CreatePaymentRequestEvent(['request' => $request, 'transaction' => $transaction]);
+            $this->trigger(static::EVENT_CREATE_PAYMENT_REQUEST, $event);
+
+            $request = $event->request;
+        }
+        
         return $request;
     }
 

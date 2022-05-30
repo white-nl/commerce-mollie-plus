@@ -2,7 +2,6 @@
 
 namespace white\commerce\mollie\plus;
 
-use Craft;
 use craft\base\Plugin;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin as CommercePlugin;
@@ -33,7 +32,7 @@ class CommerceMolliePlusPlugin extends Plugin
         Event::on(
             Order::class,
             Order::EVENT_AFTER_SAVE,
-            function (ModelEvent $event) {
+            function(ModelEvent $event) {
                 /** @var Order $order */
                 $order = $event->sender;
                 if ($order->propagating || !$order->orderStatusId) {

@@ -10,7 +10,9 @@
         "omnipay/mollie": "^5.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.4"
+        "phpunit/phpunit": "^6.4",
+        "craftcms/phpstan": "dev-main",
+        "craftcms/ecs": "dev-main"
     },
     "autoload": {
         "psr-4": {
@@ -25,5 +27,18 @@
         "hasCpSettings": false,
         "hasCpSection": false,
         "class": "white\\commerce\\mollie\\plus\\CommerceMolliePlusPlugin"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "phpstan": "phpstan --memory-limit=1G",
+        "check-cs": "ecs check --ansi",
+        "fix-cs": "ecs check --ansi --fix"
+    },
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "craftcms/plugin-installer": true
+        }
     }
 }

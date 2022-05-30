@@ -9,19 +9,21 @@ use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
-use Omnipay\Common\Message\AbstractRequest;
-use white\commerce\mollie\plus\events\CreatePaymentRequestEvent;
-use white\commerce\mollie\plus\models\RequestResponse;
 use craft\commerce\omnipay\base\OffsiteGateway;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\web\Response;
 use craft\web\View;
-use white\commerce\mollie\plus\models\forms\MollieOffsitePaymentForm;
 use Omnipay\Common\AbstractGateway;
+use Omnipay\Common\Message\AbstractRequest;
+use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RequestInterface;
 use Omnipay\Common\Message\ResponseInterface;
 use Omnipay\Mollie\Gateway as OmnipayGateway;
+use Omnipay\Mollie\Message\Response\FetchPaymentMethodsResponse;
+use white\commerce\mollie\plus\events\CreatePaymentRequestEvent;
+use white\commerce\mollie\plus\models\forms\MollieOffsitePaymentForm;
+use white\commerce\mollie\plus\models\RequestResponse;
 use yii\base\NotSupportedException;
 
 class Gateway extends OffsiteGateway
@@ -191,9 +193,15 @@ class Gateway extends OffsiteGateway
      */
     public function fetchPaymentMethods(array $parameters = [])
     {
-        $paymentMethodsRequest = $this->createGateway()->fetchPaymentMethods($parameters);
+        /** @var OmnipayGateway $gateway */
+        $gateway = $this->createGateway();
 
-        return $paymentMethodsRequest->sendData($paymentMethodsRequest->getData())->getPaymentMethods();
+        $paymentMethodsRequest = $gateway->fetchPaymentMethods($parameters);
+
+        /** @var FetchPaymentMethodsResponse $response */
+        $response = $paymentMethodsRequest->sendData($paymentMethodsRequest->getData());
+
+        return $response->getPaymentMethods();
     }
 
     /**
@@ -202,7 +210,9 @@ class Gateway extends OffsiteGateway
      */
     public function fetchIssuers(array $parameters = [])
     {
-        $issuersRequest = $this->createGateway()->fetchIssuers($parameters);
+        /** @var OmnipayGateway $gateway */
+        $gateway = $this->createGateway();
+        $issuersRequest = $gateway->fetchIssuers($parameters);
 
         return $issuersRequest->sendData($issuersRequest->getData())->getIssuers();
     }
@@ -242,7 +252,9 @@ class Gateway extends OffsiteGateway
      */
     protected function prepareRefundRequest($request, string $reference): RequestInterface
     {
-        $res = $this->gateway()
+        /** @var OmnipayGateway $gateway */
+        $gateway = $this->gateway();
+        $res = $gateway
             ->fetchOrder(['transactionReference' => $reference, 'includePayments' => true])
             ->send();
 
@@ -328,12 +340,13 @@ class Gateway extends OffsiteGateway
         $transaction = Commerce::getInstance()->getTransactions()->getTransactionByHash($transactionHash);
 
         if (!$transaction) {
-            Craft::warning('Transaction with the hash “'.$transactionHash.'“ not found.', 'commerce');
+            Craft::warning('Transaction with the hash “' . $transactionHash . '“ not found.', 'commerce');
             $response->data = 'ok';
 
             return $response;
         }
 
+        /** @var OmnipayGateway $gateway */
         $gateway = $this->createGateway();
 
         $request = $gateway->fetchOrder(['transactionReference' => $transaction->reference]);
@@ -377,7 +390,7 @@ class Gateway extends OffsiteGateway
             ])->count();
 
             if ($successfulCaptureChildTransaction) {
-                Craft::warning('Successful capture child transaction for “'.$transactionHash.'“ already exists.', 'commerce');
+                Craft::warning('Successful capture child transaction for “' . $transactionHash . '“ already exists.', 'commerce');
                 $response->data = 'ok';
 
                 return $response;
@@ -385,7 +398,7 @@ class Gateway extends OffsiteGateway
             
             $childTransaction->type = TransactionRecord::TYPE_CAPTURE;
             $childTransaction->status = TransactionRecord::STATUS_SUCCESS;
-        } else if ($res->isAuthorized()) {
+        } elseif ($res->isAuthorized()) {
             // Check to see if a successful authorize child transaction already exist and skip out early if they do
             $successfulAuthorizeChildTransaction = TransactionRecord::find()->where([
                 'parentId' => $transaction->id,
@@ -394,7 +407,7 @@ class Gateway extends OffsiteGateway
             ])->count();
 
             if ($successfulAuthorizeChildTransaction) {
-                Craft::warning('Successful authorize child transaction for “'.$transactionHash.'“ already exists.', 'commerce');
+                Craft::warning('Successful authorize child transaction for “' . $transactionHash . '“ already exists.', 'commerce');
                 $response->data = 'ok';
 
                 return $response;
@@ -402,11 +415,11 @@ class Gateway extends OffsiteGateway
 
             $childTransaction->type = TransactionRecord::TYPE_AUTHORIZE;
             $childTransaction->status = TransactionRecord::STATUS_SUCCESS;
-        } else if ($res->isExpired()) {
+        } elseif ($res->isExpired()) {
             $childTransaction->status = TransactionRecord::STATUS_FAILED;
-        } else if ($res->isCancelled()) {
+        } elseif ($res->isCancelled()) {
             $childTransaction->status = TransactionRecord::STATUS_FAILED;
-        } else if (isset($this->data['status']) && 'failed' === $this->data['status']) {
+        } elseif (isset($this->data['status']) && 'failed' === $this->data['status']) {
             $childTransaction->status = TransactionRecord::STATUS_FAILED;
         } else {
             $response->data = 'ok';
@@ -422,7 +435,7 @@ class Gateway extends OffsiteGateway
         $response->data = 'ok';
 
 
-        Craft::info('Transaction created: #'.$childTransaction->id, 'commerce-mollie-plus');
+        Craft::info('Transaction created: #' . $childTransaction->id, 'commerce-mollie-plus');
 
         return $response;
     }
@@ -449,7 +462,7 @@ class Gateway extends OffsiteGateway
     protected function createPaymentRequest(Transaction $transaction, $card = null, $itemBag = null): array
     {
         if ($card !== null) {
-            $card->setPhone(null);
+            $card->setPhone('');
         }
         
         $request = parent::createPaymentRequest($transaction, $card, $itemBag);
@@ -471,6 +484,7 @@ class Gateway extends OffsiteGateway
         // Otherwise fallback to en_US
         if (!in_array($orderLanguage, [
             'en_US',
+            'en_GB',
             'nl_NL',
             'nl_BE',
             'fr_FR',
@@ -490,7 +504,7 @@ class Gateway extends OffsiteGateway
             'hu_HU',
             'pl_PL',
             'lv_LV',
-            'lt_LT'
+            'lt_LT',
         ])) {
             $orderLanguage = 'en_US';
         }
@@ -498,7 +512,7 @@ class Gateway extends OffsiteGateway
         $request['locale'] = $orderLanguage;
 
 
-        if($this->hasEventHandlers(static::EVENT_CREATE_PAYMENT_REQUEST)) {
+        if ($this->hasEventHandlers(static::EVENT_CREATE_PAYMENT_REQUEST)) {
             $event = new CreatePaymentRequestEvent(['request' => $request, 'transaction' => $transaction]);
             $this->trigger(static::EVENT_CREATE_PAYMENT_REQUEST, $event);
 
@@ -525,39 +539,63 @@ class Gateway extends OffsiteGateway
                 $count++;
                 /** @var Purchasable $purchasable */
                 $purchasable = $item->getPurchasable();
-                $defaultDescription = Craft::t('commerce', 'Item ID').' '.$item->id;
-                $purchasableDescription = $purchasable ? $purchasable->getDescription() : $defaultDescription;
+                $defaultDescription = Craft::t('commerce', 'Item ID') . ' ' . $item->id;
+                $purchasableDescription = !empty($purchasable->getDescription()) ? $purchasable->getDescription() : $defaultDescription;
                 $description = isset($item->snapshot['description']) ? $item->snapshot['description'] : $purchasableDescription;
-                $description = empty($description) ? 'Item '.$count : $description;
+                $description = empty($description) ? 'Item ' . $count : $description;
 
-                $totalTax = $item->getTaxIncluded();
-                
                 $vatRate = null;
+                $taxIncluded = false;
+                $itemShippingRate = 0;
                 foreach ($item->getAdjustments() as $adjustment) {
-                    if ($adjustment->type == 'tax' && $adjustment->included) {
+                    if ($adjustment->type == 'tax') {
+                        if ($adjustment->included) {
+                            $taxIncluded = true;
+                        }
                         $snapshot = $adjustment->getSourceSnapshot();
                         if (isset($snapshot['rate'])) {
                             $vatRate = $snapshot['rate'];
-                            break;
+                            continue;
                         }
                     }
+                    if ($adjustment->type == 'shipping') {
+                        $snapshot = $adjustment->getSourceSnapshot();
+                        if (isset($snapshot['perItemRate'])) {
+                            $itemShippingRate = $snapshot['perItemRate'];
+                        }
+                    }
+                }
+
+                if ($taxIncluded) {
+                    $totalTax = $item->getTaxIncluded();
+                } else {
+                    $totalTax = $item->getTax();
                 }
 
                 if ($vatRate === null) {
                     $vatRate = ($totalTax) / (($price * $item->qty) - $totalTax);
                 }
-                
+
+                $totalPrice = $item->getTotal();
+
+                $vatAmountUnit = 0;
+                if (!$taxIncluded) {
+                    $vatAmountUnit = Currency::round($totalTax / $item->qty);
+                }
+
                 $items[] = [
+                    'type' => 'physical',
                     'name' => $description,
-                    'description' => $description,
+                    'sku' => $item->getSku(),
                     'quantity' => $item->qty,
-                    'price' => $price,
-                    'unitPrice' => $price,
+                    'unitPrice' => $price + $vatAmountUnit + $itemShippingRate,
+                    'discountAmount' => abs($item->getDiscount()),
                     'vatRate' => sprintf('%0.2f', $vatRate * 100),
                     'vatAmount' => $totalTax,
+                    'totalAmount' => $totalPrice,
                 ];
 
-                $priceCheck += ($item->qty * $item->salePrice);
+                $priceCheck += $totalPrice;
             }
         }
 
@@ -565,16 +603,43 @@ class Gateway extends OffsiteGateway
 
         foreach ($order->getAdjustments() as $adjustment) {
             $price = Currency::round($adjustment->amount);
-            if (($adjustment->included == 0 || $adjustment->included == false) && $price !== 0) {
+            if ($adjustment->type == 'shipping' && !$adjustment->included && !$adjustment->lineItemId && $price !== 0) {
                 $count++;
                 $items[] = [
-                    'name' => empty($adjustment->name) ? $adjustment->type." ".$count : $adjustment->name,
-                    'description' => empty($adjustment->description) ? $adjustment->type.' '.$count : $adjustment->description,
+                    'type' => 'shipping_fee',
+                    'name' => empty($adjustment->name) ? $adjustment->type . " " . $count : $adjustment->name,
                     'quantity' => 1,
-                    'price' => $price,
                     'unitPrice' => $price,
                     'vatRate' => '0.00',
+                    'vatAmount' => 0,
+                    'totalAmount' => $price,
                 ];
+
+                $priceCheck += $adjustment->amount;
+            } elseif ($adjustment->type == 'discount' && !$adjustment->included && !$adjustment->lineItemId && $price !== 0) {
+                $count++;
+                $items[] = [
+                    'type' => 'discount',
+                    'name' => empty($adjustment->name) ? $adjustment->type . " " . $count : $adjustment->name,
+                    'quantity' => 1,
+                    'unitPrice' => $price,
+                    'vatRate' => '0.00',
+                    'vatAmount' => 0,
+                    'totalAmount' => $price,
+                ];
+
+                $priceCheck += $adjustment->amount;
+            } elseif (!$adjustment->included && !$adjustment->lineItemId && $price !== 0) {
+                $items[] = [
+                    'type' => 'physical',
+                    'name' => empty($adjustment->name) ? $adjustment->type . " " . $count : $adjustment->name,
+                    'quantity' => 1,
+                    'unitPrice' => $price,
+                    'vatRate' => '0.00',
+                    'vatAmount' => 0,
+                    'totalAmount' => $price,
+                ];
+
                 $priceCheck += $adjustment->amount;
             }
         }

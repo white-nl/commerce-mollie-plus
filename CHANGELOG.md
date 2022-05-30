@@ -1,5 +1,13 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 1.0.3 - 2022-05-30
+
+### Added
+- Added en_GB language support
+
+### Fixed
+- Use discountAmount on lineItem to set the discount instead of seperate lineItem ([#4](https://github.com/white-nl/commerce-mollie-plus/issues/4))
+
 ## 1.0.2 - 2022-04-07
 
 ### Added

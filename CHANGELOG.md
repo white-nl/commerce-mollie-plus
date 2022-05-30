@@ -7,7 +7,7 @@
 - Added en_GB language support
 
 ### Fixed
-- 
+- Use discountAmount on lineItem to set the discount instead of separate lineItem
 
 ## 1.0.2 - 2022-04-07
 

@@ -1,20 +1,31 @@
 {
     "name": "white-nl/commerce-mollie-plus",
-    "description": "Commerce Mollie Plus Plugin for Craft 3",
+    "description": "Commerce Mollie Plus Plugin for Craft 4",
     "type": "craft-plugin",
+    "keywords": [
+        "mollie",
+        "commerce",
+        "craftcms",
+        "omnipay",
+        "yii2"
+    ],
+    "authors": [
+        {
+            "name": "Digital Agency WHITE",
+            "homepage": "https://white.nl"
+        }
+    ],
     "license": "proprietary",
     "require": {
-        "craftcms/cms": "^3.1.5",
-        "craftcms/commerce": "^2.0|^3.0",
-        "craftcms/commerce-omnipay": "^2.0|^3.0.0",
+        "php": "^8.0.2",
+        "craftcms/cms": "^4.0.0",
+        "craftcms/commerce": "^4.0.0",
+        "craftcms/commerce-omnipay": "^4.0.0",
         "omnipay/mollie": "^5.0"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "^6.4"
     },
     "autoload": {
         "psr-4": {
-          "white\\commerce\\mollie\\plus\\": "src/"
+            "white\\commerce\\mollie\\plus\\": "src/"
         }
     },
     "extra": {
@@ -25,5 +36,25 @@
         "hasCpSettings": false,
         "hasCpSection": false,
         "class": "white\\commerce\\mollie\\plus\\CommerceMolliePlusPlugin"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require-dev": {
+        "craftcms/phpstan": "dev-main",
+        "craftcms/ecs": "dev-main"
+    },
+    "scripts": {
+        "phpstan": "phpstan --memory-limit=1G",
+        "check-cs": "ecs check --ansi",
+        "fix-cs": "ecs check --ansi --fix"
+    },
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "craftcms/plugin-installer": true
+        },
+        "platform": {
+            "php": "8.0.2"
+        }
     }
 }

@@ -5,8 +5,8 @@ Mollie Plus plugin for Craft CMS, official version by WHITE Digital Agency
 
 ## Requirements
 
-* This plugin requires Craft CMS **3.1.5** or later.
-* This plugin requires Craft Commerce version **2.0** or later.
+* This plugin requires Craft CMS **4.0.0** or later.
+* This plugin requires Craft Commerce version **4.0** or later.
 * A valid Mollie account is required. Don't have an account yet? [Create a Mollie account](https://www.mollie.com/dashboard/signup/white?lang=en).
 * The Craft website should be publicly accessible.
 * To configure the plugin, changing settings should be allowed in Craft (allow admin changes), and a user who is an Admin in Craft.
@@ -39,9 +39,9 @@ use white\commerce\mollie\plus\events\CreatePaymentRequestEvent;
 Event::on(
    Gateway::class,
    Gateway::EVENT_CREATE_PAYMENT_REQUEST,
-   function (CreatePaymentRequestEvent $event)
+   function (CreatePaymentRequestEvent $event): void
    {
-       $event->request['orderNumber'] = $event->transaction->order->id;
+         $event->request['orderNumber'] = $event->transaction->getOrder()->getId();
    }
 );
 ```
@@ -50,7 +50,7 @@ Event::on(
 
 Mollie plus is a drop-in replacement[^1] for Pixel & Tonic’s Mollie for Commerce plugin. We advise to replace it by Mollie Plus. It will be a seamless transition, since they function similarly.
 
-[^1]: The plugin will run completely independently from the Mollie plugin. You even can run both plugins at the same time.
+[^1]: The plugin will run completely independently of the Mollie plugin. You even can run both plugins at the same time.
 
 ## Documentation
 

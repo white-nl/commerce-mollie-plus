@@ -10,10 +10,10 @@ class CreatePaymentRequestEvent extends Event
     /**
      * @var array
      */
-    public $request;
+    public array $request = [];
 
     /**
      * @var Transaction
      */
-    public $transaction;
+    public Transaction $transaction;
 }

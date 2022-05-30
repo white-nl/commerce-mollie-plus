@@ -15,11 +15,10 @@ class RequestResponse extends \craft\commerce\omnipay\base\RequestResponse
         $data = $this->response->getData();
 
         if (is_array($data) && !empty($data['status'])) {
-            switch ($data['status']) {
-                case 'canceled':
-                    return Craft::t('commerce-mollie-plus', 'The payment was canceled.');
-                case 'failed':
-                    return Craft::t('commerce-mollie-plus', 'The payment failed.');
+            if ($data['status'] == 'canceled') {
+                return Craft::t('commerce-mollie-plus', 'The payment was canceled.');
+            } elseif ($data['status'] == 'failed') {
+                return Craft::t('commerce-mollie-plus', 'The payment failed.');
             }
         }
 

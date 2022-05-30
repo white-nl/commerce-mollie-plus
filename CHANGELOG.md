@@ -1,5 +1,14 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 2.0.0 - 2022-05-30
+
+### Added
+- Added Craft CMS 4 and Craft Commerce 4 compatibility.
+- Added en_GB language support
+
+### Fixed
+- 
+
 ## 1.0.2 - 2022-04-07
 
 ### Added

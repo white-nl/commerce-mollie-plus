@@ -9,4 +9,6 @@ class MollieOffsitePaymentForm extends BasePaymentForm
     public $paymentMethod;
 
     public $issuer;
+
+    public $cardToken;
 }

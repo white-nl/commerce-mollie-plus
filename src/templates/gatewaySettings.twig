@@ -1,15 +1,36 @@
-{% from "_includes/forms" import autosuggestField, multiselectField %}
+{% from "_includes/forms" import autosuggestField, multiselectField, booleanMenuField %}
 
 {{ autosuggestField({
     label: 'API Key'|t('commerce'),
     id: 'apiKey',
     class: 'ltr',
     name: 'apiKey',
+    required: true,
     suggestEnvVars: true,
     value: gateway.apiKey,
     errors: gateway.getErrors('apiKey')
 }) }}
-                
+
+{{ autosuggestField({
+    label: 'Profile ID'|t('commerce'),
+    instructions: "Used for the Mollie components",
+    id: 'profileId',
+    class: 'ltr',
+    name: 'profileId',
+    suggestEnvVars: true,
+    value: gateway.profileId,
+    errors: gateway.getErrors('profileId')
+}) }}
+
+{{ booleanMenuField({
+    label: 'Test mode?'|t('commerce'),
+    instructions: "Test mode for Mollie components",
+    name: 'testMode',
+    value: gateway.testMode,
+    includeEnvVars: true,
+    errors: gateway.getErrors('testMode')
+}) }}
+
 {{ multiselectField({
     label:        "Order status for automatic capture"|t('commerce-mollie-plus'),
     instructions: "When a Craft order status changes to one of these, any uncaptured Mollie transactions associated with it are going to be captured automatically."|t('commerce-mollie-plus'),
@@ -21,17 +42,16 @@
     class: 'selectize fullwidth',
 }) }}
 
-
 {% js %}
     $('#types-white-commerce-mollie-plus-gateways-Gateway-orderStatusToCapture').selectize({
-        plugins: ['remove_button'],
-        dropdownParent: 'body'
+    plugins: ['remove_button'],
+    dropdownParent: 'body'
     });
 {% endjs %}
 {% css %}
     body .selectize-dropdown-content > div[data-value="new"]:before,
     body .selectize-dropdown-content > div[data-value="new"]:after {
-        content: '';
-        margin-right: 0;
+    content: '';
+    margin-right: 0;
     }
 {% endcss %}

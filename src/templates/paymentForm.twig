@@ -1,13 +1,65 @@
-<div class="mollie-form">
+{% set locale = currentSite.locale in locales ? currentSite.locale : 'en_US' %}
+<div class="mollie-plus-form"
+     data-profile-id="{{ parseEnv(gateway.profileId) }}"
+     data-test-mode="{{ parseEnv(gateway.testMode) }}"
+     data-locale="{{ locale }}"
+>
     <select name="paymentMethod">
-    {% for method in paymentMethods %}
-        <option value="{{ method.id }}">{{ method.name }}</option>
-    {% endfor %}
+        {% for method in paymentMethods %}
+            <option value="{{ method.id }}">{{ method.name }}</option>
+        {% endfor %}
     </select>
 
     <select name="issuer">
-    {% for issuer in issuers %}
-        <option value="{{ issuer.id }}">{{ issuer.name }} - {{ issuer.paymentMethod }}</option>
-    {% endfor %}
+        {% for issuer in issuers %}
+            <option value="{{ issuer.id }}">{{ issuer.name }} - {{ issuer.paymentMethod }}</option>
+        {% endfor %}
     </select>
+    <div class="form-fields">
+        <div class="row">
+            <div class="form-group form-group--card-holder">
+                <label class="label" for="card-holder">Name</label>
+                <div id="card-holder"></div>
+                <div
+                        id="card-holder-error"
+                        class="field-error"
+                        role="alert"
+                ></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group form-group--card-number">
+                <label class="label" for="card-number">Card number</label>
+                <div id="card-number"></div>
+                <div
+                        id="card-number-error"
+                        class="field-error"
+                        role="alert"
+                ></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group form-group--expiry-date">
+                <label class="label" for="expiry-date">Expiry date</label>
+                <div id="expiry-date"></div>
+                <div
+                        id="expiry-date-error"
+                        class="field-error"
+                        role="alert"
+                ></div>
+            </div>
+
+            <div class="form-group form-group--verification-code">
+                <label class="label" for="verification-code">CVC</label>
+                <div id="verification-code"></div>
+                <div
+                        id="verification-code-error"
+                        class="field-error"
+                        role="alert"
+                ></div>
+            </div>
+        </div>
+    </div>
 </div>

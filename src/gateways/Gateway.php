@@ -27,11 +27,14 @@ use Omnipay\Mollie\Message\Response\FetchPaymentMethodsResponse;
 use white\commerce\mollie\plus\events\CreatePaymentRequestEvent;
 use white\commerce\mollie\plus\models\forms\MollieOffsitePaymentForm;
 use white\commerce\mollie\plus\models\RequestResponse;
+use white\commerce\mollie\plus\web\assets\MollieFormAsset;
 use yii\base\NotSupportedException;
 
 /**
  *
  * @property-write null|string $apiKey
+ * @property-write null|string $profileId
+ * @property-write bool|string $testmode
  * @property-read null|string $settingsHtml
  */
 class Gateway extends OffsiteGateway
@@ -39,12 +42,50 @@ class Gateway extends OffsiteGateway
     /**
      * @var string|null
      */
-    public ?string $_apiKey = null;
+    private ?string $_apiKey = null;
+
+    /**
+     * @var string|null
+     */
+    private ?string $_profileId = null;
+
+    /**
+     * @var bool|string
+     */
+    private bool|string $_testmode = false;
 
     /**
      * @var array|string[]
      */
     public array $orderStatusToCapture = [];
+
+    /**
+     * @var array
+     */
+    public array $supportedLocales = [
+        'en_US',
+        'en_GB',
+        'nl_NL',
+        'nl_BE',
+        'fr_FR',
+        'fr_BE',
+        'de_DE',
+        'de_AT',
+        'de_CH',
+        'es_ES',
+        'ca_ES',
+        'pt_PT',
+        'it_IT',
+        'nb_NO',
+        'sv_SE',
+        'fi_FI',
+        'da_DK',
+        'is_IS',
+        'hu_HU',
+        'pl_PL',
+        'lv_LV',
+        'lt_LT',
+    ];
 
     /**
      * @inheritdoc
@@ -64,6 +105,8 @@ class Gateway extends OffsiteGateway
     {
         $settings = parent::getSettings();
         $settings['apiKey'] = $this->getApiKey(false);
+        $settings['profileId'] = $this->getProfileId(false);
+        $settings['testMode'] = $this->getTestMode(false);
 
         return $settings;
     }
@@ -84,6 +127,42 @@ class Gateway extends OffsiteGateway
     public function setApiKey(?string $apiKey): void
     {
         $this->_apiKey = $apiKey;
+    }
+
+    /**
+     * @param bool $parse
+     * @return string|null
+     */
+    public function getProfileId(bool $parse = true): ?string
+    {
+        return $parse ? App::parseEnv($this->_profileId) : $this->_profileId;
+    }
+
+    /**
+     * @param string|null $profileId
+     * @return void
+     */
+    public function setProfileId(?string $profileId): void
+    {
+        $this->_profileId = $profileId;
+    }
+
+    /**
+     * @param bool $parse
+     * @return bool|string
+     */
+    public function getTestMode(bool $parse = true): bool|string
+    {
+        return $parse ? App::parseBooleanEnv($this->_testmode) : $this->_testmode;
+    }
+
+    /**
+     * @param bool|string $testMode
+     * @return void
+     */
+    public function setTestMode(bool|string $testMode): void
+    {
+        $this->_testmode = $testMode;
     }
 
     /**
@@ -206,6 +285,8 @@ class Gateway extends OffsiteGateway
                 'paymentForm' => $this->getPaymentFormModel(),
                 'paymentMethods' => $this->fetchPaymentMethods(['resource' => 'orders']),
                 'issuers' => $this->fetchIssuers(),
+                'locales' => $this->supportedLocales,
+                'handle' => $this->handle,
             ];
         } catch (\Throwable) {
             // In case this is not allowed for the account
@@ -218,6 +299,9 @@ class Gateway extends OffsiteGateway
 
         $previousMode = $view->getTemplateMode();
         $view->setTemplateMode(View::TEMPLATE_MODE_CP);
+
+        $view->registerScript('', View::POS_END, ['src' => 'https://js.mollie.com/v1/mollie.js']);
+        $view->registerAssetBundle(MollieFormAsset::class);
 
         $html = $view->renderTemplate('commerce-mollie-plus/paymentForm', $params);
         $view->setTemplateMode($previousMode);
@@ -270,6 +354,10 @@ class Gateway extends OffsiteGateway
 
             if ($paymentForm->issuer) {
                 $request['issuer'] = $paymentForm->issuer;
+            }
+
+            if ($paymentForm->cardToken) {
+                $request['cardToken'] = $paymentForm->cardToken;
             }
         }
     }
@@ -532,30 +620,7 @@ class Gateway extends OffsiteGateway
 
         // Check if the $orderLanguage is in the list of Mollie languages
         // Otherwise fallback to en_US
-        if (!in_array($orderLanguage, [
-            'en_US',
-            'en_GB',
-            'nl_NL',
-            'nl_BE',
-            'fr_FR',
-            'fr_BE',
-            'de_DE',
-            'de_AT',
-            'de_CH',
-            'es_ES',
-            'ca_ES',
-            'pt_PT',
-            'it_IT',
-            'nb_NO',
-            'sv_SE',
-            'fi_FI',
-            'da_DK',
-            'is_IS',
-            'hu_HU',
-            'pl_PL',
-            'lv_LV',
-            'lt_LT',
-        ])) {
+        if (!in_array($orderLanguage, $this->supportedLocales, true)) {
             $orderLanguage = 'en_US';
         }
 

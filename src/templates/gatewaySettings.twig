@@ -1,13 +1,34 @@
-{% from "_includes/forms" import autosuggestField, multiselectField %}
+{% from "_includes/forms" import autosuggestField, multiselectField, booleanMenuField %}
 
 {{ autosuggestField({
     label: 'API Key'|t('commerce'),
     id: 'apiKey',
     class: 'ltr',
     name: 'apiKey',
+    required: true,
     suggestEnvVars: true,
     value: gateway.getApiKey(false),
     errors: gateway.getErrors('apiKey')
+}) }}
+
+{{ autosuggestField({
+    label: 'Profile ID'|t('commerce'),
+    instructions: "Used for the Mollie components",
+    id: 'profileId',
+    class: 'ltr',
+    name: 'profileId',
+    suggestEnvVars: true,
+    value: gateway.getProfileId(false),
+    errors: gateway.getErrors('profileId')
+}) }}
+
+{{ booleanMenuField({
+    label: 'Test mode?'|t('commerce'),
+    instructions: "Test mode for Mollie components",
+    name: 'testMode',
+    value: gateway.getTestMode(false),
+    includeEnvVars: true,
+    errors: gateway.getErrors('testMode')
 }) }}
                 
 {{ multiselectField({
@@ -20,7 +41,6 @@
     errors:       gateway.getErrors('orderStatusToCapture'),
     class: 'selectize fullwidth',
 }) }}
-
 
 {% js %}
     $('#types-white-commerce-mollie-plus-gateways-Gateway-orderStatusToCapture').selectize({

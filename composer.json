@@ -21,7 +21,7 @@
         "craftcms/cms": "^4.0.0",
         "craftcms/commerce": "^4.0.0",
         "craftcms/commerce-omnipay": "^4.0.0",
-        "omnipay/mollie": "^5.0"
+        "omnipay/mollie": "^5.5"
     },
     "autoload": {
         "psr-4": {

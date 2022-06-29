@@ -12,8 +12,6 @@ Mollie Plus plugin for Craft CMS, official version by WHITE Digital Agency
 * To configure the plugin, changing settings should be allowed in Craft (allow admin changes), and a user who is an Admin in Craft.
 * This plugin is compatible with Composer 2.0.
 
-
-
 ## Installation
 
 To install Mollie Plus plugin for Craft CMS, follow these steps:

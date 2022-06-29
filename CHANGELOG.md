@@ -1,5 +1,13 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 2.1.0 - 2022-06-29
+
+### Added
+- Added support for [Mollie components](https://docs.mollie.com/components/overview)
+
+### Changed
+- require omnipay/mollie package ^5.5 
+
 ## 2.0.0 - 2022-05-30
 
 ### Added

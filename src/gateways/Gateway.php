@@ -209,7 +209,7 @@ class Gateway extends OffsiteGateway
                 'locales' => $this->supportedLocales,
                 'handle' => $this->handle,
             ];
-        } catch (\Throwable) {
+        } catch (\Throwable $exception) {
             // In case this is not allowed for the account
             return parent::getPaymentFormHtml($params);
         }

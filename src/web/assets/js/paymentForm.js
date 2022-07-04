@@ -17,10 +17,24 @@ function initMollie() {
             }
         );
 
+        var options = {
+            styles : {
+                base: {
+                    backgroundColor: '#eee',
+                    '::placeholder' : {
+                        color: 'rgba(68, 68, 68, 0.2)',
+                    }
+                },
+                invalid: {
+                    color: 'rgb(220, 38, 38)',
+                }
+            }
+        };
+
         /**
          * Create card holder input
          */
-        var cardHolder = mollie.createComponent('cardHolder');
+        var cardHolder = mollie.createComponent('cardHolder', options);
         cardHolder.mount('#' + paymentNamespace + '-card-holder');
 
         var cardHolderError = document.getElementById(paymentNamespace + "-card-holder-error");
@@ -36,7 +50,7 @@ function initMollie() {
         /**
          * Create card number input
          */
-        var cardNumber = mollie.createComponent('cardNumber');
+        var cardNumber = mollie.createComponent('cardNumber', options);
         cardNumber.mount('#' + paymentNamespace + '-card-number');
 
         var cardNumberError = document.getElementById(paymentNamespace + "-card-number-error");
@@ -52,7 +66,7 @@ function initMollie() {
         /**
          * Create expiry date input
          */
-        var expiryDate = mollie.createComponent('expiryDate');
+        var expiryDate = mollie.createComponent('expiryDate', options);
         expiryDate.mount('#' + paymentNamespace + '-expiry-date');
 
         var expiryDateError = document.getElementById(paymentNamespace + "-expiry-date-error");
@@ -68,7 +82,7 @@ function initMollie() {
         /**
          * Create verification code input
          */
-        var verificationCode = mollie.createComponent('verificationCode');
+        var verificationCode = mollie.createComponent('verificationCode', options);
         verificationCode.mount('#' + paymentNamespace + '-verification-code');
 
         var verificationCodeError = document.getElementById(paymentNamespace + "-verification-code-error");

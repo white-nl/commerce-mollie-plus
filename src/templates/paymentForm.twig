@@ -7,62 +7,78 @@
      data-locale="{{ locale }}"
      data-payment-namespace="paymentForm-{{ handle }}"
 >
-    <select name="paymentMethod">
     {% for method in paymentMethods %}
-        <option value="{{ method.id }}">{{ method.name }}</option>
+        <label class="block cursor-pointer mt-3 border-red-300 border-b-2 px-6 py-4 rounded-md shadow-md hover:shadow-lg">
+          <span class="flex justify-start items-center">
+            <span class="pr-3">
+              {{ input('radio', 'paymentMethod', method.id, {
+                  checked: loop.first
+              }) }}
+            </span>
+            <span>
+                {% if method.name|lower is same as('ideal') %}
+                    <strong>{{ method.name }}</strong>
+                    <br>
+                    <select name="issuer">
+                    {% for issuer in issuers %}
+                        <option value="{{ issuer.id }}">{{ issuer.name }} - {{ issuer.paymentMethod }}</option>
+                    {% endfor %}
+                    </select>
+                {% elseif method.name|lower is same as('credit card') %}
+                    <strong>{{ "Debit or Credit Card"|t }}</strong>
+                    <br>
+                    <div class="form-fields">
+                        <div class="row">
+                            <div class="form-group form-group--card-holder">
+                                <label class="label" for="card-holder">{{ "Name"|t }}</label>
+                                <div id="card-holder"></div>
+                                <div
+                                        id="card-holder-error"
+                                        class="field-error"
+                                        role="alert"
+                                ></div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group form-group--card-number">
+                                <label class="label" for="card-number">{{ "Card number"|t }}</label>
+                                <div id="card-number"></div>
+                                <div
+                                        id="card-number-error"
+                                        class="field-error"
+                                        role="alert"
+                                ></div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group form-group--expiry-date">
+                                <label class="label" for="expiry-date">{{ "Expiry date"|t }}</label>
+                                <div id="expiry-date"></div>
+                                <div
+                                        id="expiry-date-error"
+                                        class="field-error"
+                                        role="alert"
+                                ></div>
+                            </div>
+
+                            <div class="form-group form-group--verification-code">
+                                <label class="label" for="verification-code">{{ "CVC"|t }}</label>
+                                <div id="verification-code"></div>
+                                <div
+                                        id="verification-code-error"
+                                        class="field-error"
+                                        role="alert"
+                                ></div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <strong>{{ method.name }}</strong>
+                {% endif %}
+            </span>
+          </span>
+        </label>
     {% endfor %}
-    </select>
-
-    <select name="issuer">
-    {% for issuer in issuers %}
-        <option value="{{ issuer.id }}">{{ issuer.name }} - {{ issuer.paymentMethod }}</option>
-    {% endfor %}
-    </select>
-    <div class="form-fields">
-        <div class="row">
-            <div class="form-group form-group--card-holder">
-                <label class="label" for="card-holder">Name</label>
-                <div id="card-holder"></div>
-                <div
-                        id="card-holder-error"
-                        class="field-error"
-                        role="alert"
-                ></div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="form-group form-group--card-number">
-                <label class="label" for="card-number">Card number</label>
-                <div id="card-number"></div>
-                <div
-                        id="card-number-error"
-                        class="field-error"
-                        role="alert"
-                ></div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="form-group form-group--expiry-date">
-                <label class="label" for="expiry-date">Expiry date</label>
-                <div id="expiry-date"></div>
-                <div
-                        id="expiry-date-error"
-                        class="field-error"
-                        role="alert"
-                ></div>
-            </div>
-
-            <div class="form-group form-group--verification-code">
-                <label class="label" for="verification-code">CVC</label>
-                <div id="verification-code"></div>
-                <div
-                        id="verification-code-error"
-                        class="field-error"
-                        role="alert"
-                ></div>
-            </div>
-        </div>
-    </div>
 </div>

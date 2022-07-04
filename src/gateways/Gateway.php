@@ -62,7 +62,7 @@ class Gateway extends OffsiteGateway
     /**
      * @var array
      */
-    public array $supportedLocales = [
+    private array $supportedLocales = [
         'en_US',
         'en_GB',
         'nl_NL',
@@ -107,6 +107,7 @@ class Gateway extends OffsiteGateway
         $settings['apiKey'] = $this->getApiKey(false);
         $settings['profileId'] = $this->getProfileId(false);
         $settings['testMode'] = $this->getTestMode(false);
+        $settings['sendCartInfo'] = $this->sendCartInfo;
 
         return $settings;
     }

@@ -1,5 +1,10 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 1.1.2 - 2022-07-04
+
+### Changed
+- Update the styling of the example template
+
 ## 1.1.1 - 2022-06-29
 
 ### Fixed 

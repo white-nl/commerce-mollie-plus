@@ -12,6 +12,7 @@ use craft\commerce\models\Transaction;
 use craft\commerce\omnipay\base\OffsiteGateway;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\Transaction as TransactionRecord;
+use craft\helpers\Template;
 use craft\web\Response;
 use craft\web\View;
 use Omnipay\Common\AbstractGateway;
@@ -51,7 +52,7 @@ class Gateway extends OffsiteGateway
     /**
      * @var array
      */
-    public $supportedLocales = [
+    private $supportedLocales = [
         'en_US',
         'en_GB',
         'nl_NL',
@@ -207,7 +208,6 @@ class Gateway extends OffsiteGateway
                 'paymentMethods' => $this->fetchPaymentMethods(['resource' => 'orders']),
                 'issuers' => $this->fetchIssuers(),
                 'locales' => $this->supportedLocales,
-                'handle' => $this->handle,
             ];
         } catch (\Throwable $exception) {
             // In case this is not allowed for the account
@@ -221,7 +221,6 @@ class Gateway extends OffsiteGateway
         $previousMode = $view->getTemplateMode();
         $view->setTemplateMode(View::TEMPLATE_MODE_CP);
 
-        $view->registerScript('', View::POS_END, ['src' => 'https://js.mollie.com/v1/mollie.js']);
         $view->registerAssetBundle(MollieFormAsset::class);
 
         $html = $view->renderTemplate('commerce-mollie-plus/paymentForm', $params);

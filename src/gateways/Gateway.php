@@ -301,7 +301,6 @@ class Gateway extends OffsiteGateway
         $previousMode = $view->getTemplateMode();
         $view->setTemplateMode(View::TEMPLATE_MODE_CP);
 
-        $view->registerScript('', View::POS_END, ['src' => 'https://js.mollie.com/v1/mollie.js']);
         $view->registerAssetBundle(MollieFormAsset::class);
 
         $html = $view->renderTemplate('commerce-mollie-plus/paymentForm', $params);

@@ -30,7 +30,7 @@ You can also install the Mollie Plus plugin using the Plugin Store in the Craft 
 ## Customize mollie payload
 You can change the payload that's been sent to Mollie by hooking into the event
 
-```
+``` PHP
 use white\commerce\mollie\plus\gateways;
 use white\commerce\mollie\plus\events\CreatePaymentRequestEvent;
 

@@ -14,6 +14,7 @@ class MollieFormAsset extends AssetBundle
         $this->sourcePath = __DIR__;
 
         $this->js = [
+            'https://js.mollie.com/v1/mollie.js',
             'js/paymentForm.js',
         ];
 

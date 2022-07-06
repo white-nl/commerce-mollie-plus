@@ -17,6 +17,8 @@ use yii\base\Event;
  */
 class CommerceMolliePlusPlugin extends Plugin
 {
+    public string $schemaVersion = '1.0.1';
+
     public function init(): void
     {
         parent::init();

@@ -20,10 +20,7 @@ function initMollie() {
         var options = {
             styles : {
                 base: {
-                    backgroundColor: '#eee',
-                    '::placeholder' : {
-                        color: 'rgba(68, 68, 68, 0.2)',
-                    }
+                    backgroundColor: '#fff',
                 },
                 invalid: {
                     color: 'rgb(220, 38, 38)',

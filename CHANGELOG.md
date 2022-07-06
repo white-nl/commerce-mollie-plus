@@ -1,5 +1,10 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 2.1.2 - 2022-07-06
+
+### Changed
+- Add the mollie components js file to the asset bundle
+
 ## 2.1.1 - 2022-07-04
 
 ### Changed

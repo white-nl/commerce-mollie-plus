@@ -1,5 +1,11 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 2.2.0 - 2022-10-24
+
+### Added
+- The `fetchPaymentMethods()` method is now also returning a `logo` object containing the SVG logo from the payment method.
+- Added a `completeBanktransferOrders` setting, that if enabled will automatically complete orders with a pending banktransfer transactions. Defaults to `false` which will only mark the cart as completted once the banktransfer is being completed. ([#12](https://github.com/white-nl/commerce-mollie-plus/issues/12))
+
 ## 2.1.2 - 2022-07-06
 
 ### Changed

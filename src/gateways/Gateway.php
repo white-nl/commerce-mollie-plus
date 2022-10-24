@@ -17,13 +17,17 @@ use craft\web\View;
 use Omnipay\Common\AbstractGateway;
 use Omnipay\Common\CreditCard;
 use Omnipay\Common\Exception\InvalidRequestException;
+use Omnipay\Common\Issuer;
 use Omnipay\Common\ItemBag;
 use Omnipay\Common\Message\AbstractResponse;
 use Omnipay\Common\Message\RequestInterface;
 use Omnipay\Common\Message\ResponseInterface;
 use Omnipay\Mollie\Gateway as OmnipayGateway;
 use Omnipay\Mollie\Item;
+use Omnipay\Mollie\Message\Request\FetchTransactionRequest;
+use Omnipay\Mollie\Message\Response\FetchOrderResponse;
 use Omnipay\Mollie\Message\Response\FetchPaymentMethodsResponse;
+use Omnipay\Mollie\Message\Response\FetchTransactionResponse;
 use white\commerce\mollie\plus\events\CreatePaymentRequestEvent;
 use white\commerce\mollie\plus\models\forms\MollieOffsitePaymentForm;
 use white\commerce\mollie\plus\models\RequestResponse;
@@ -58,6 +62,11 @@ class Gateway extends OffsiteGateway
      * @var array|string[]
      */
     public array $orderStatusToCapture = [];
+
+    /**
+     * @var bool
+     */
+    public bool $completeBanktransferOrders = false;
 
     /**
      * @var array
@@ -342,7 +351,7 @@ class Gateway extends OffsiteGateway
 
     /**
      * @param array $parameters
-     * @return array
+     * @return Issuer[]
      * @throws InvalidRequestException
      */
     public function fetchIssuers(array $parameters = []): array
@@ -352,6 +361,32 @@ class Gateway extends OffsiteGateway
         $issuersRequest = $gateway->fetchIssuers($parameters);
 
         return $issuersRequest->sendData($issuersRequest->getData())->getIssuers();
+    }
+
+    /**
+     * @param  array $parameters
+     * @return FetchOrderResponse
+     */
+    public function fetchOrder(array $parameters = [])
+    {
+        /** @var OmnipayGateway $gateway */
+        $gateway = $this->createGateway();
+        $orderRequest = $gateway->fetchOrder($parameters);
+
+        return $orderRequest->send();
+    }
+
+    /**
+     * @param string $id
+     * @return FetchTransactionResponse
+     */
+    public function fetchTransaction(string $id)
+    {
+        $gateway = $this->createGateway();
+        /** @var FetchTransactionRequest $request */
+        $request = $gateway->fetchTransaction(['transactionReference' => $id]);
+        $res = $request->send();
+        return $res;
     }
 
     /**

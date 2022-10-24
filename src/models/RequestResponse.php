@@ -3,7 +3,10 @@
 namespace white\commerce\mollie\plus\models;
 
 use Craft;
+use Omnipay\Mollie\Message\Response\CompleteOrderResponse;
 use Omnipay\Mollie\Message\Response\CreateShipmentResponse;
+use Omnipay\Mollie\Message\Response\FetchOrderResponse;
+use white\commerce\mollie\plus\gateways\Gateway;
 
 class RequestResponse extends \craft\commerce\omnipay\base\RequestResponse
 {
@@ -12,17 +15,63 @@ class RequestResponse extends \craft\commerce\omnipay\base\RequestResponse
      */
     public function getMessage(): string
     {
-        $data = $this->response->getData();
+        $transaction = $this->transaction;
+
+        /** @var Gateway $gateway */
+        $gateway = $transaction->getGateway();
+
+        /** @var FetchOrderResponse $order */
+        $order = $gateway->fetchOrder(['transactionReference' => $this->getTransactionReference(), 'includePayments' => true]);
+
+        $transactionReference = $order->getData()['_embedded']['payments'][0]['id'] ?? null;
+
+        if ($transactionReference) {
+            $transaction = $gateway->fetchTransaction($transactionReference);
+            $data = $transaction->getData();
+        } else {
+            $data = $this->response->getData();
+        }
 
         if (is_array($data) && !empty($data['status'])) {
-            if ($data['status'] == 'canceled') {
-                return Craft::t('commerce-mollie-plus', 'The payment was canceled.');
-            } elseif ($data['status'] == 'failed') {
-                return Craft::t('commerce-mollie-plus', 'The payment failed.');
+            switch ($data['status']) {
+                case 'canceled':
+                    return Craft::t('commerce-mollie-plus', 'The payment was canceled.');
+                case 'failed':
+                    return Craft::t('commerce-mollie-plus', 'The payment failed.');
+                case 'expired':
+                    return Craft::t('commerce-mollie-plus', 'The payment expired.');
             }
         }
 
-        return (string)$this->response->getMessage();
+        return (string)$transaction->getMessage();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isProcessing(): bool
+    {
+        $data = $this->response->getData();
+
+        if ($this->response instanceof CompleteOrderResponse && isset($data['method'], $data['status']) && $data['method'] === 'banktransfer' && $this->response->isOpen()) {
+            return true;
+        }
+
+        return parent::isProcessing();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isRedirect(): bool
+    {
+        $data = $this->response->getData();
+
+        if ($this->response instanceof CompleteOrderResponse && isset($data['method'], $data['status']) && $data['method'] === 'banktransfer' && $this->response->isOpen()) {
+            return false;
+        }
+
+        return parent::isRedirect();
     }
 
     /**

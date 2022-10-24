@@ -6,6 +6,7 @@ use craft\base\Element;
 use craft\base\Plugin;
 use craft\commerce\elements\Order;
 use craft\commerce\Plugin as CommercePlugin;
+use craft\commerce\records\Transaction;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\services\Gateways;
 use craft\events\ModelEvent;
@@ -53,6 +54,26 @@ class CommerceMolliePlusPlugin extends Plugin
                         $child = CommercePlugin::getInstance()->getPayments()->captureTransaction($transaction);
                         if ($child->status == TransactionRecord::STATUS_SUCCESS) {
                             $child->getOrder()->updateOrderPaidInformation();
+                        }
+                    }
+                }
+            }
+        );
+
+        Event::on(
+            Order::class,
+            Order::EVENT_BEFORE_COMPLETE_ORDER,
+            function(Event $event): void {
+                /** @var Order $order */
+                $order = $event->sender;
+
+                $transaction = $order->getLastTransaction();
+                $gateway = $transaction->getGateway();
+                if ($gateway instanceof Gateway && !$gateway->completeBanktransferOrders) {
+                    if ($transaction->status === Transaction::STATUS_PROCESSING) {
+                        $transactionMessage = json_decode($transaction->message);
+                        if ($transactionMessage->method === 'banktransfer') {
+                            $order->isCompleted = false;
                         }
                     }
                 }

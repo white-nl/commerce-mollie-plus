@@ -324,7 +324,20 @@ class Gateway extends OffsiteGateway
         /** @var FetchPaymentMethodsResponse $response */
         $response = $paymentMethodsRequest->sendData($paymentMethodsRequest->getData());
 
-        return $response->getPaymentMethods();
+        if (isset($response->getData()['_embedded']["methods"]) === false) {
+            return [];
+        }
+
+        $paymentMethods = [];
+        foreach ($response->getData()['_embedded']["methods"] as $method) {
+            $paymentMethods[] = [
+                'id' => $method['id'],
+                'name' => $method['description'],
+                'logo' => $method['image']['svg'],
+            ];
+        }
+
+        return $paymentMethods;
     }
 
     /**

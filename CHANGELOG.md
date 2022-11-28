@@ -1,5 +1,10 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 2.2.1 - 2022-11-28
+
+### Fixed
+- Fixed an error that could occure if you complete an order without a transaction
+
 ## 2.2.0 - 2022-10-24
 
 ### Added

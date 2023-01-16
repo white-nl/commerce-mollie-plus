@@ -1,5 +1,10 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 2.2.2 - 2023-01-16
+
+### Changed
+- The `fetchPaymentMethods()` function will now return an empty array when unable to fetch the methods instead of throwing an exception which could trigger a server error
+
 ## 2.2.1 - 2022-11-28
 
 ### Fixed

@@ -50,6 +50,11 @@ class Gateway extends OffsiteGateway
     public $orderStatusToCapture = [];
 
     /**
+     * @var bool
+     */
+    public $completeBanktransferOrders = false;
+
+    /**
      * @var array
      */
     private $supportedLocales = [
@@ -240,10 +245,26 @@ class Gateway extends OffsiteGateway
 
         $paymentMethodsRequest = $gateway->fetchPaymentMethods($parameters);
 
-        /** @var FetchPaymentMethodsResponse $response */
-        $response = $paymentMethodsRequest->sendData($paymentMethodsRequest->getData());
+        try {
+            /** @var FetchPaymentMethodsResponse $response */
+            $response = $paymentMethodsRequest->sendData($paymentMethodsRequest->getData());
+        } catch (\Exception) {
+        }
 
-        return $response->getPaymentMethods();
+        if (!isset($response) || isset($response->getData()['_embedded']["methods"]) === false) {
+            return [];
+        }
+
+        $paymentMethods = [];
+        foreach ($response->getData()['_embedded']['methods'] as $method) {
+            $paymentMethods[] = [
+                'id' => $method['id'],
+                'name' => $method['description'],
+                'logo' => $method['image']['svg'],
+            ];
+        }
+
+        return $paymentMethods;
     }
 
     /**
@@ -257,6 +278,32 @@ class Gateway extends OffsiteGateway
         $issuersRequest = $gateway->fetchIssuers($parameters);
 
         return $issuersRequest->sendData($issuersRequest->getData())->getIssuers();
+    }
+
+    /**
+     * @param  array $parameters
+     * @return FetchOrderResponse
+     */
+    public function fetchOrder($parameters = [])
+    {
+        /** @var OmnipayGateway $gateway */
+        $gateway = $this->createGateway();
+        $orderRequest = $gateway->fetchOrder($parameters);
+
+        return $orderRequest->send();
+    }
+
+    /**
+     * @param string $id
+     * @return FetchTransactionResponse
+     */
+    public function fetchTransaction($id)
+    {
+        $gateway = $this->createGateway();
+        /** @var FetchTransactionRequest $request */
+        $request = $gateway->fetchTransaction(['transactionReference' => $id]);
+        $res = $request->send();
+        return $res;
     }
 
     /**

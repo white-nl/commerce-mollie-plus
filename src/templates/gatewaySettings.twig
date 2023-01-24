@@ -42,6 +42,14 @@
     class: 'selectize fullwidth',
 }) }}
 
+{{ booleanMenuField({
+    label: "Complete banktransfer orders"|t('commerce-mollie-plus'),
+    instructions: "Should an order with a pending banktransfer transaction be marked as completed",
+    name: 'completeBanktransferOrders',
+    value: gateway.completeBanktransferOrders,
+    errors: gateway.getErrors('completeBanktransferOrders')
+}) }}
+
 {% js %}
     $('#types-white-commerce-mollie-plus-gateways-Gateway-orderStatusToCapture').selectize({
     plugins: ['remove_button'],

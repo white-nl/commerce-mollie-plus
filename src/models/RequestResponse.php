@@ -5,6 +5,7 @@ namespace white\commerce\mollie\plus\models;
 use Craft;
 use Omnipay\Mollie\Message\Response\CompleteOrderResponse;
 use Omnipay\Mollie\Message\Response\CreateShipmentResponse;
+use Omnipay\Mollie\Message\Response\RefundResponse;
 
 class RequestResponse extends \craft\commerce\omnipay\base\RequestResponse
 {
@@ -77,7 +78,7 @@ class RequestResponse extends \craft\commerce\omnipay\base\RequestResponse
      */
     public function getTransactionReference(): string
     {
-        return $this->response instanceof CreateShipmentResponse
+        return ($this->response instanceof CreateShipmentResponse || $this->response instanceof RefundResponse)
             ? ($this->response->getData()['orderId'] ?? $this->response->getTransactionReference())
             : $this->response->getTransactionReference();
     }

@@ -1,5 +1,10 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 1.2.1 - 2023-02-08
+
+### Fixed
+- Fixed an issue with getting the refund response
+
 ## 1.2.0 - 2023-01-23
 
 ### Added

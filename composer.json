@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-          "white\\commerce\\mollie\\plus\\": "src/"
+            "white\\commerce\\mollie\\plus\\": "src/"
         }
     },
     "extra": {
@@ -37,7 +37,7 @@
     "config": {
         "allow-plugins": {
             "yiisoft/yii2-composer": true,
-            "craftcms/plugin-installer": true,
+            "craftcms/plugin-installer": true
         }
     }
 }

@@ -12,7 +12,6 @@ use craft\commerce\models\Transaction;
 use craft\commerce\omnipay\base\OffsiteGateway;
 use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\Transaction as TransactionRecord;
-use craft\helpers\Template;
 use craft\web\Response;
 use craft\web\View;
 use Omnipay\Common\AbstractGateway;

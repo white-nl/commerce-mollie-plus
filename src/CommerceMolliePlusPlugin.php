@@ -17,7 +17,6 @@ use yii\base\Event;
  */
 class CommerceMolliePlusPlugin extends Plugin
 {
-
     public $schemaVersion = '1.0.1';
 
     public function init()
@@ -70,12 +69,14 @@ class CommerceMolliePlusPlugin extends Plugin
                 $order = $event->sender;
 
                 $transaction = $order->getLastTransaction();
-                $gateway = $transaction->getGateway() ?? null;
-                if ($gateway instanceof Gateway && !$gateway->completeBanktransferOrders) {
-                    if ($transaction->status === Transaction::STATUS_PROCESSING) {
-                        $transactionMessage = json_decode($transaction->message);
-                        if ($transactionMessage->method === 'banktransfer') {
-                            $order->isCompleted = false;
+                if ($transaction !== null) {
+                    $gateway = $transaction->getGateway();
+                    if ($gateway instanceof Gateway && !$gateway->completeBanktransferOrders) {
+                        if ($transaction->status === Transaction::STATUS_PROCESSING) {
+                            $transactionMessage = json_decode($transaction->message);
+                            if ($transactionMessage->method === 'banktransfer') {
+                                $order->isCompleted = false;
+                            }
                         }
                     }
                 }

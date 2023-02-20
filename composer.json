@@ -10,7 +10,6 @@
         "omnipay/mollie": "^5.5"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.4",
         "craftcms/phpstan": "dev-main",
         "craftcms/ecs": "dev-main"
     },
@@ -38,7 +37,7 @@
     "config": {
         "allow-plugins": {
             "yiisoft/yii2-composer": true,
-            "craftcms/plugin-installer": true
+            "craftcms/plugin-installer": true,
         }
     }
 }

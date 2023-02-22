@@ -1,5 +1,10 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 1.2.3 - 2023-02-22
+
+### Fixed
+- Fixed an issue with strict comparison and rounded floats when price is 0
+
 ## 1.2.2 - 2023-02-20
 
 ### Fixed

@@ -199,7 +199,7 @@ class Gateway extends OffsiteGateway
     {
         return Craft::$app->getRequest()->getParam('commerceTransactionHash');
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -333,7 +333,7 @@ class Gateway extends OffsiteGateway
     {
         /** @var OmnipayGateway $mollieGateway */
         $mollieGateway = $this->gateway();
-        
+
         $request = $mollieGateway->createOrder($request);
 
         return $request;
@@ -353,7 +353,7 @@ class Gateway extends OffsiteGateway
         if (!$res->isSuccessful()) {
             throw new \Exception(Craft::t('commerce-mollie-plus', 'Mollie Order #{reference} not found.', ['reference' => $reference]));
         }
-        
+
         // Find a payment suitable for refund
         $data = $res->getData();
         $payments = $data['_embedded']['payments'] ?? [];
@@ -363,11 +363,11 @@ class Gateway extends OffsiteGateway
                 $targetPaymentId = $payment['id'];
             }
         }
-        
+
         if ($targetPaymentId === null) {
             throw new \Exception(Craft::t('commerce-mollie-plus', 'Unable to find a payment to refund.'));
         }
-        
+
         /** @var AbstractRequest $refundRequest */
         $refundRequest = $this->gateway()->refund($request);
         $refundRequest->setTransactionReference($targetPaymentId);
@@ -455,7 +455,7 @@ class Gateway extends OffsiteGateway
         $childTransaction->type = $transaction->type;
 
         Craft::info('Mollie ORDER STATUS received: ' . $res->getStatus(), 'commerce-mollie-plus');
-        
+
         if ($res->isPaid() || $res->getStatus() === 'completed') {
             // Try to find child successful authorize transaction and if found, make it the parent one
             if ($transaction->status != TransactionRecord::STATUS_SUCCESS) {
@@ -464,7 +464,7 @@ class Gateway extends OffsiteGateway
                     'status' => TransactionRecord::STATUS_SUCCESS,
                     'type' => TransactionRecord::TYPE_AUTHORIZE,
                 ])->limit(1)->select(['id'])->scalar();
-                
+
                 if ($authorizeTransactionId) {
                     $authorizeTransaction = Commerce::getInstance()->getTransactions()->getTransactionById($authorizeTransactionId);
                     if ($authorizeTransaction) {
@@ -474,7 +474,7 @@ class Gateway extends OffsiteGateway
                     }
                 }
             }
-            
+
             $successfulCaptureChildTransaction = TransactionRecord::find()->where([
                 'parentId' => $transaction->id,
                 'status' => TransactionRecord::STATUS_SUCCESS,
@@ -487,7 +487,7 @@ class Gateway extends OffsiteGateway
 
                 return $response;
             }
-            
+
             $childTransaction->type = TransactionRecord::TYPE_CAPTURE;
             $childTransaction->status = TransactionRecord::STATUS_SUCCESS;
         } elseif ($res->isAuthorized()) {
@@ -547,7 +547,7 @@ class Gateway extends OffsiteGateway
 
         return $options;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -556,10 +556,10 @@ class Gateway extends OffsiteGateway
         if ($card !== null) {
             $card->setPhone('');
         }
-        
+
         $request = parent::createPaymentRequest($transaction, $card, $itemBag);
         $request['orderNumber'] = $transaction->order->number;
-        
+
         if (!empty($transaction->note)) {
             $request['description'] = $transaction->note;
         }
@@ -587,7 +587,7 @@ class Gateway extends OffsiteGateway
 
             $request = $event->request;
         }
-        
+
         return $request;
     }
 
@@ -603,8 +603,8 @@ class Gateway extends OffsiteGateway
 
         foreach ($order->getLineItems() as $item) {
             $price = Currency::round($item->salePrice);
-            
-            if ($price !== 0) {
+
+            if ($price != 0) {
                 $count++;
                 /** @var Purchasable $purchasable */
                 $purchasable = $item->getPurchasable();
@@ -672,7 +672,7 @@ class Gateway extends OffsiteGateway
 
         foreach ($order->getAdjustments() as $adjustment) {
             $price = Currency::round($adjustment->amount);
-            if ($adjustment->type == 'shipping' && !$adjustment->included && !$adjustment->lineItemId && $price !== 0) {
+            if ($adjustment->type == 'shipping' && !$adjustment->included && !$adjustment->lineItemId && $price != 0) {
                 $count++;
                 $items[] = [
                     'type' => 'shipping_fee',
@@ -685,7 +685,7 @@ class Gateway extends OffsiteGateway
                 ];
 
                 $priceCheck += $adjustment->amount;
-            } elseif ($adjustment->type == 'discount' && !$adjustment->included && !$adjustment->lineItemId && $price !== 0) {
+            } elseif ($adjustment->type == 'discount' && !$adjustment->included && !$adjustment->lineItemId && $price != 0) {
                 $count++;
                 $items[] = [
                     'type' => 'discount',
@@ -698,7 +698,7 @@ class Gateway extends OffsiteGateway
                 ];
 
                 $priceCheck += $adjustment->amount;
-            } elseif (!$adjustment->included && !$adjustment->lineItemId && $price !== 0) {
+            } elseif (!$adjustment->included && !$adjustment->lineItemId && $price != 0) {
                 $items[] = [
                     'type' => 'physical',
                     'name' => empty($adjustment->name) ? $adjustment->type . " " . $count : $adjustment->name,
@@ -751,7 +751,7 @@ class Gateway extends OffsiteGateway
         if ($commerce) {
             $gateway->addVersionString('CraftCommerce/' . $commerce['version']);
         }
-        
+
         $gateway->addVersionString('Craft/' . Craft::$app->getVersion());
         $gateway->addVersionString('uap/eSEEG6szENBK5BjD');
 

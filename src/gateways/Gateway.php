@@ -707,7 +707,7 @@ class Gateway extends OffsiteGateway
 
                 $vatRate = null;
                 $taxIncluded = false;
-                $itemShippingRate = 0;
+                $itemShipping = 0;
                 foreach ($item->getAdjustments() as $adjustment) {
                     if ($adjustment->type == 'tax') {
                         if ($adjustment->included) {
@@ -720,10 +720,7 @@ class Gateway extends OffsiteGateway
                         }
                     }
                     if ($adjustment->type == 'shipping') {
-                        $snapshot = $adjustment->getSourceSnapshot();
-                        if (isset($snapshot['perItemRate'])) {
-                            $itemShippingRate = $snapshot['perItemRate'];
-                        }
+                        $itemShipping = Currency::round($item->getShippingCost() / $item->qty);
                     }
                 }
 
@@ -748,7 +745,7 @@ class Gateway extends OffsiteGateway
                     'physical',
                     $description,
                     $item->qty,
-                    $price + $vatAmountUnit + $itemShippingRate,
+                    $price + $vatAmountUnit + $itemShipping,
                     abs($item->getDiscount()),
                     sprintf('%0.2f', $vatRate * 100),
                     $totalTax,

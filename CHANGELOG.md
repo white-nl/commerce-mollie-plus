@@ -1,5 +1,10 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 1.2.4 - 2023-03-13
+
+### Fixed
+- Fixed an issue with shipping calculating
+
 ## 1.2.3 - 2023-02-22
 
 ### Fixed
@@ -8,7 +13,7 @@
 ## 1.2.2 - 2023-02-20
 
 ### Fixed
-- Fixed a error that would occour when completing an order without transactions
+- Fixed a error that would occur when completing an order without transactions
 
 ## 1.2.1 - 2023-02-08
 

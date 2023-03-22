@@ -73,6 +73,7 @@ class CommerceMolliePlusPlugin extends Plugin
                     if ($transaction->status === Transaction::STATUS_PROCESSING) {
                         $transactionMessage = json_decode($transaction->message);
                         if ($transactionMessage->method === 'banktransfer') {
+                            $order->orderStatusId = null;
                             $order->isCompleted = false;
                         }
                     }

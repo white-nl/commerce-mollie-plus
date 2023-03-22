@@ -1,5 +1,10 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 2.2.5 - 2023-03-22
+
+### Fixed
+- Fixed an issue with banktransfers to reset orderStatusId if banktransfer is pending
+
 ## 2.2.4 - 2023-03-13
 
 ### Fixed

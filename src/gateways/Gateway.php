@@ -247,7 +247,7 @@ class Gateway extends OffsiteGateway
         try {
             /** @var FetchPaymentMethodsResponse $response */
             $response = $paymentMethodsRequest->sendData($paymentMethodsRequest->getData());
-        } catch (\Exception) {
+        } catch (\Exception $e) {
         }
 
         if (!isset($response) || isset($response->getData()['_embedded']["methods"]) === false) {

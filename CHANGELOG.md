@@ -1,5 +1,10 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 1.2.6 - 2023-03-23
+
+### Fixed
+- Fixed a PHP 7 incompatibility
+
 ## 1.2.5 - 2023-03-22
 
 ### Fixed

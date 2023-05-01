@@ -2,14 +2,13 @@
 
 namespace white\commerce\mollie\plus;
 
-use craft\base\Element;
 use craft\base\Plugin;
 use craft\commerce\elements\Order;
+use craft\commerce\events\OrderStatusEvent;
 use craft\commerce\Plugin as CommercePlugin;
 use craft\commerce\records\Transaction;
-use craft\commerce\records\Transaction as TransactionRecord;
 use craft\commerce\services\Gateways;
-use craft\events\ModelEvent;
+use craft\commerce\services\OrderHistories;
 use craft\events\RegisterComponentTypesEvent;
 use white\commerce\mollie\plus\gateways\Gateway;
 use yii\base\Event;
@@ -38,24 +37,24 @@ class CommerceMolliePlusPlugin extends Plugin
     protected function registerOrderEventListeners(): void
     {
         Event::on(
-            Order::class,
-            Element::EVENT_AFTER_SAVE,
-            function(ModelEvent $event): void {
-                /** @var Order $order */
-                $order = $event->sender;
-                if ($order->propagating || !$order->orderStatusId) {
-                    return;
-                }
+            OrderHistories::class,
+            OrderHistories::EVENT_ORDER_STATUS_CHANGE,
+            function(OrderStatusEvent $event) {
+                $order = $event->order;
+                $orderHistory = $event->orderHistory;
 
-                // Automatic transaction capture based on order status configured in the gateway settings
-                foreach ($order->getTransactions() as $transaction) {
-                    $gateway = $transaction->getGateway();
-                    if ($gateway instanceof Gateway && $transaction->canCapture() && (is_array($gateway->orderStatusToCapture) && in_array($order->getOrderStatus()->handle, $gateway->orderStatusToCapture))) {
-                        $child = CommercePlugin::getInstance()->getPayments()->captureTransaction($transaction);
-                        if ($child->status == TransactionRecord::STATUS_SUCCESS) {
-                            $child->getOrder()->updateOrderPaidInformation();
-                        }
-                    }
+                $newStatus = $orderHistory->getNewStatus()->handle;
+
+                $transaction = $order->getLastTransaction();
+                $gateway = $transaction->getGateway();
+                if (
+                    $gateway instanceof Gateway &&
+                    $transaction->canCapture() &&
+                    $transaction->type === Transaction::TYPE_AUTHORIZE &&
+                    $transaction->status === Transaction::STATUS_SUCCESS &&
+                    in_array($newStatus, $gateway->orderStatusToCapture)
+                ) {
+                    $gateway->createShipment($transaction->reference);
                 }
             }
         );

@@ -1,5 +1,10 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 2.2.6 - 2023-05-01
+
+### Fixed
+- Fixed and issue where the capturing of Klarna payments would occur twice which results in overpaid orders
+
 ## 2.2.5 - 2023-03-22
 
 ### Fixed

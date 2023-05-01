@@ -14,11 +14,16 @@ use craft\commerce\Plugin as Commerce;
 use craft\commerce\records\Transaction as TransactionRecord;
 use craft\web\Response;
 use craft\web\View;
+use Exception;
 use Omnipay\Common\AbstractGateway;
 use Omnipay\Common\Message\AbstractRequest;
 use Omnipay\Common\Message\RequestInterface;
 use Omnipay\Common\Message\ResponseInterface;
 use Omnipay\Mollie\Gateway as OmnipayGateway;
+use Omnipay\Mollie\Item;
+use Omnipay\Mollie\Message\Request\CreateShipmentRequest;
+use Omnipay\Mollie\Message\Request\FetchTransactionRequest;
+use Omnipay\Mollie\Message\Response\FetchOrderResponse;
 use Omnipay\Mollie\Message\Response\FetchPaymentMethodsResponse;
 use white\commerce\mollie\plus\events\CreatePaymentRequestEvent;
 use white\commerce\mollie\plus\models\forms\MollieOffsitePaymentForm;
@@ -418,6 +423,17 @@ class Gateway extends OffsiteGateway
         return $request;
     }
 
+    public function createShipment(string $reference): void
+    {
+        /** @var OmnipayGateway $mollieGateway */
+        $mollieGateway = $this->gateway();
+
+        $request['transactionReference'] = $reference;
+
+        $shipmentRequest = $mollieGateway->createShipment($request);
+        $shipmentRequest->send();
+    }
+
 
     /**
      * @inheritdoc
@@ -438,6 +454,13 @@ class Gateway extends OffsiteGateway
             return $response;
         }
 
+        $transactionLockName = 'mollieTransaction:' . $transaction->hash;
+        $mutex = Craft::$app->getMutex();
+
+        if (!$mutex->acquire($transactionLockName, 15)) {
+            throw new Exception('Unable to acquire a lock for transaction: ' . $transaction->hash);
+        }
+
         /** @var OmnipayGateway $gateway */
         $gateway = $this->createGateway();
 
@@ -448,6 +471,7 @@ class Gateway extends OffsiteGateway
             Craft::warning('Mollie request was unsuccessful.', 'commerce');
             $response->data = 'ok';
 
+            $mutex->release($transactionLockName);
             return $response;
         }
 
@@ -485,6 +509,19 @@ class Gateway extends OffsiteGateway
                 Craft::warning('Successful capture child transaction for “' . $transactionHash . '“ already exists.', 'commerce');
                 $response->data = 'ok';
 
+                $mutex->release($transactionLockName);
+                return $response;
+            }
+            $transactionOrder = $transaction->getOrder();
+            $lastTransaction = $transactionOrder->getLastTransaction();
+            if (
+                $lastTransaction->status === TransactionRecord::STATUS_SUCCESS &&
+                $lastTransaction->type === TransactionRecord::TYPE_CAPTURE
+            ) {
+                Craft::warning('Successful capture child transaction for “' . $transactionHash . '“ already exists.', 'commerce');
+                $response->data = 'ok';
+
+                $mutex->release($transactionLockName);
                 return $response;
             }
 
@@ -502,6 +539,7 @@ class Gateway extends OffsiteGateway
                 Craft::warning('Successful authorize child transaction for “' . $transactionHash . '“ already exists.', 'commerce');
                 $response->data = 'ok';
 
+                $mutex->release($transactionLockName);
                 return $response;
             }
 
@@ -515,6 +553,8 @@ class Gateway extends OffsiteGateway
             $childTransaction->status = TransactionRecord::STATUS_FAILED;
         } else {
             $response->data = 'ok';
+
+            $mutex->release($transactionLockName);
             return $response;
         }
 
@@ -529,6 +569,7 @@ class Gateway extends OffsiteGateway
 
         Craft::info('Transaction created: #' . $childTransaction->id, 'commerce-mollie-plus');
 
+        $mutex->release($transactionLockName);
         return $response;
     }
 

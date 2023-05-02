@@ -423,6 +423,22 @@ class Gateway extends OffsiteGateway
         return $request;
     }
 
+    public function capture(Transaction $transaction, string $reference): RequestResponseInterface
+    {
+        $transactionLockName = 'mollieTransaction:' . $reference;
+        $mutex = Craft::$app->getMutex();
+
+        if (!$mutex->acquire($transactionLockName, 15)) {
+            throw new Exception('Unable to acquire a lock for transaction: ' . $reference);
+        }
+        try {
+            $capture = parent::capture($transaction, $reference);
+        } finally {
+            $mutex->release($transactionLockName);
+            return $capture;
+        }
+    }
+
     public function createShipment(string $reference): void
     {
         /** @var OmnipayGateway $mollieGateway */
@@ -454,11 +470,11 @@ class Gateway extends OffsiteGateway
             return $response;
         }
 
-        $transactionLockName = 'mollieTransaction:' . $transaction->hash;
+        $transactionLockName = 'mollieTransaction:' . $transaction->reference;
         $mutex = Craft::$app->getMutex();
 
         if (!$mutex->acquire($transactionLockName, 15)) {
-            throw new Exception('Unable to acquire a lock for transaction: ' . $transaction->hash);
+            throw new Exception('Unable to acquire a lock for transaction: ' . $transaction->reference);
         }
 
         /** @var OmnipayGateway $gateway */

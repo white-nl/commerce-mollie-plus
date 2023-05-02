@@ -45,15 +45,17 @@ class CommerceMolliePlusPlugin extends Plugin
                 $newStatus = $orderHistory->getNewStatus()->handle;
 
                 $transaction = $order->getLastTransaction();
-                $gateway = $transaction->getGateway();
-                if (
-                    $gateway instanceof Gateway &&
-                    $transaction->canCapture() &&
-                    $transaction->type === Transaction::TYPE_AUTHORIZE &&
-                    $transaction->status === Transaction::STATUS_SUCCESS &&
-                    in_array($newStatus, $gateway->orderStatusToCapture)
-                ) {
-                    $gateway->createShipment($transaction->reference);
+                if ($transaction !== null) {
+                    $gateway = $transaction->getGateway();
+                    if (
+                        $gateway instanceof Gateway &&
+                        $transaction->canCapture() &&
+                        $transaction->type === Transaction::TYPE_AUTHORIZE &&
+                        $transaction->status === Transaction::STATUS_SUCCESS &&
+                        in_array($newStatus, $gateway->orderStatusToCapture)
+                    ) {
+                        $gateway->createShipment($transaction->reference);
+                    }
                 }
             }
         );

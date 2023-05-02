@@ -5,7 +5,6 @@ namespace white\commerce\mollie\plus;
 use craft\base\Plugin;
 use craft\commerce\elements\Order;
 use craft\commerce\events\OrderStatusEvent;
-use craft\commerce\Plugin as CommercePlugin;
 use craft\commerce\records\Transaction;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\OrderHistories;
@@ -46,7 +45,7 @@ class CommerceMolliePlusPlugin extends Plugin
                 $newStatus = $orderHistory->getNewStatus()->handle;
 
                 $transaction = $order->getLastTransaction();
-                $gateway = $transaction->getGateway();
+                $gateway = $transaction?->getGateway();
                 if (
                     $gateway instanceof Gateway &&
                     $transaction->canCapture() &&

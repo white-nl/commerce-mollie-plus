@@ -1,5 +1,11 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 2.3.0 - 2023-09-27
+
+### Added
+
+- Added the option to send tracking info to mollie.
+
 ## 2.2.7 - 2023-05-02
 
 ### Fixed

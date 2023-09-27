@@ -21,7 +21,8 @@
         "craftcms/cms": "^4.0.0",
         "craftcms/commerce": "^4.0.0",
         "craftcms/commerce-omnipay": "^4.0.0",
-        "omnipay/mollie": "^5.5"
+        "omnipay/mollie": "^5.5",
+        "nystudio107/craft-code-editor": "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -51,7 +52,8 @@
     "config": {
         "allow-plugins": {
             "yiisoft/yii2-composer": true,
-            "craftcms/plugin-installer": true
+            "craftcms/plugin-installer": true,
+            "php-http/discovery": true
         },
         "platform": {
             "php": "8.0.2"

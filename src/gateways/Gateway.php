@@ -25,7 +25,6 @@ use Omnipay\Common\Message\RequestInterface;
 use Omnipay\Common\Message\ResponseInterface;
 use Omnipay\Mollie\Gateway as OmnipayGateway;
 use Omnipay\Mollie\Item;
-use Omnipay\Mollie\Message\Request\CreateShipmentRequest;
 use Omnipay\Mollie\Message\Request\FetchTransactionRequest;
 use Omnipay\Mollie\Message\Response\FetchOrderResponse;
 use Omnipay\Mollie\Message\Response\FetchPaymentMethodsResponse;
@@ -64,6 +63,14 @@ class Gateway extends OffsiteGateway
      * @var array|string[]
      */
     public array $orderStatusToCapture = [];
+
+    public bool $trackingEnabled = false;
+
+    public string $carrier = '';
+
+    public string $trackAndTrace = '';
+
+    public string $trackingUrl = '';
 
     /**
      * @var bool
@@ -104,7 +111,7 @@ class Gateway extends OffsiteGateway
     public bool $sendCartInfo = true;
 
     /**
-     * Event to mutate the request payload
+     * Event to mutate the payment request payload
      * @var string
      */
     public const EVENT_CREATE_PAYMENT_REQUEST = 'createPaymentRequestEvent';
@@ -518,6 +525,8 @@ class Gateway extends OffsiteGateway
 
         $request['transactionReference'] = $reference;
 
+        $request = $this->createShipmentRequest($request);
+
         return $mollieGateway->createShipment($request);
     }
 
@@ -537,13 +546,13 @@ class Gateway extends OffsiteGateway
         }
     }
 
-    public function createShipment(string $reference): void
+    public function createShipment(string $reference, Order $order): void
     {
         /** @var OmnipayGateway $mollieGateway */
         $mollieGateway = $this->gateway();
-
         $request['transactionReference'] = $reference;
-
+        $request['order'] = $order;
+        $request = $this->createShipmentRequest($request);
         $shipmentRequest = $mollieGateway->createShipment($request);
         $shipmentRequest->send();
     }
@@ -956,5 +965,42 @@ class Gateway extends OffsiteGateway
         $mollieItem->setTotalAmount($totalAmount);
 
         return $mollieItem;
+    }
+
+    private function createShipmentRequest(array $request): array
+    {
+        if ($this->trackingEnabled) {
+            $carrierTemplate = $this->carrier;
+            $trackAndTraceTemplate = $this->trackAndTrace;
+            $trackingUrlTemplate = $this->trackingUrl;
+
+            $vars = ['order' => $request['order']];
+            try {
+                $carrier = Craft::$app->getView()->renderString($carrierTemplate, $vars);
+            } catch (\Throwable $exception) {
+                Craft::warning('Unable to get carrier for transaction: ' . $request['transactionReference'], __METHOD__);
+            }
+            try {
+                $trackAndTrace = Craft::$app->getView()->renderString($trackAndTraceTemplate, $vars);
+            } catch (\Throwable $exception) {
+                Craft::warning('Unable to get track and trace code for transaction: ' . $request['transactionReference'], __METHOD__);
+            }
+            if ($trackingUrlTemplate !== '') {
+                try {
+                    $trackingUrl = Craft::$app->getView()->renderString($trackingUrlTemplate, $vars);
+                } catch (\Throwable $exception) {
+                    Craft::warning('Unable to get trackingUrl code for transaction: ' . $request['transactionReference'], __METHOD__);
+                }
+            }
+
+            if (!empty($carrier) && !empty($trackAndTrace)) {
+                $request['tracking'] = [
+                    'carrier' => $carrier,
+                    'code' => $trackAndTrace,
+                    'url' => $trackingUrl ?? '',
+                ];
+            }
+        }
+        return $request;
     }
 }

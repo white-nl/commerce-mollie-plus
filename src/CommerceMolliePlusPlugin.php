@@ -9,6 +9,10 @@ use craft\commerce\records\Transaction;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\OrderHistories;
 use craft\events\RegisterComponentTypesEvent;
+use nystudio107\codeeditor\autocompletes\CraftApiAutocomplete;
+use nystudio107\codeeditor\autocompletes\TwigLanguageAutocomplete;
+use nystudio107\codeeditor\events\RegisterCodeEditorAutocompletesEvent;
+use nystudio107\codeeditor\services\AutocompleteService;
 use white\commerce\mollie\plus\gateways\Gateway;
 use yii\base\Event;
 
@@ -30,7 +34,28 @@ class CommerceMolliePlusPlugin extends Plugin
             }
         );
 
+        $this->registerCodeEditorAutocompletes();
         $this->registerOrderEventListeners();
+    }
+
+    protected function registerCodeEditorAutocompletes(): void
+    {
+        Event::on(
+            AutocompleteService::class,
+            AutocompleteService::EVENT_REGISTER_CODEEDITOR_AUTOCOMPLETES,
+            function(RegisterCodeEditorAutocompletesEvent $event) {
+                if ($event->fieldType === 'MollieOrderField') {
+                    $config = [
+                        'elementRouteGlobals' => [
+                            'order' => new Order(),
+                        ],
+                    ];
+                    $event->types = [];
+                    $event->types[] = [CraftApiAutocomplete::class => $config];
+                    $event->types[] = TwigLanguageAutocomplete::class;
+                }
+            }
+        );
     }
 
     protected function registerOrderEventListeners(): void
@@ -53,7 +78,7 @@ class CommerceMolliePlusPlugin extends Plugin
                     $transaction->status === Transaction::STATUS_SUCCESS &&
                     in_array($newStatus, $gateway->orderStatusToCapture)
                 ) {
-                    $gateway->createShipment($transaction->reference);
+                    $gateway->createShipment($transaction->reference, $order);
                 }
             }
         );

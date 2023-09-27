@@ -1,4 +1,12 @@
 {% from "_includes/forms" import autosuggestField, multiselectField, booleanMenuField %}
+{% import "codeeditor/codeEditor" as codeEditor %}
+
+{% set monacoOptions = {
+} %}
+
+{% set codeEditorOptions = {
+    wrapperClass: "monaco-editor-background-frame",
+} %}
 
 {{ autosuggestField({
     label: 'API Key'|t('commerce'),
@@ -41,6 +49,50 @@
     errors:       gateway.getErrors('orderStatusToCapture'),
     class: 'selectize fullwidth',
 }) }}
+
+{{ booleanMenuField({
+    label: "Enable tracking for mollie orders"|t('commerce-mollie-plus'),
+    instructions: "When enabled the `carrier` and `trackAndTrace` are required"|t('commerce-mollie-plus'),
+    name: 'trackingEnabled',
+    value: gateway.trackingEnabled,
+    errors: gateway.getErrors('trackingEnabled')
+}) }}
+
+{{ codeEditor.textField({
+    label: "Name of the postal carrier"|t('commerce-mollie-plus'),
+    instructions: "Name of the postal carrier (as specific as possible). For example PostNL. Maximum length: 100 characters. The order object can be used, for example {ex1}."|t('commerce-mollie-plus', {
+        ex1: "<code>{{ order.shippingMethodHandle }}</code>",
+    }),
+    id: 'carrier',
+    name: 'carrier',
+    value: gateway.carrier,
+    class: "code ltr",
+    errors: gateway.getErrors('carrier'),
+}, 'MollieOrderField', monacoOptions, codeEditorOptions) }}
+
+{{ codeEditor.textField({
+    label: "The track and trace code of the shipment"|t('commerce-mollie-plus'),
+    instructions: "he track and trace code of the shipment. For example 3SKABA000000000. Maximum length: 100 characters. The order object can be used, for example {ex1}."|t('commerce-mollie-plus', {
+        ex1: "<code>{{ order.trackAndTraceField }}</code>",
+    }),
+    id: 'trackAndTrace',
+    name: 'trackAndTrace',
+    value: gateway.trackAndTrace,
+    class: "code ltr",
+    errors: gateway.getErrors('trackAndTrace'),
+}, 'MollieOrderField', monacoOptions, codeEditorOptions) }}
+
+{{ codeEditor.textField({
+    label: "The URL where your customer can track the shipment"|t('commerce-mollie-plus'),
+    instructions: "he track and trace code of the shipment. For example http://postnl.nl/tracktrace/?B=3SKABA000000000&P=1015CW&D=NL&T=C. The order object can be used, for example {ex1}."|t('commerce-mollie-plus', {
+        ex1: "<code>{{ order.trackingUrl }}</code>",
+    }),
+    id: 'trackingUrl',
+    name: 'trackingUrl',
+    value: gateway.trackingUrl,
+    class: "code ltr",
+    errors: gateway.getErrors('trackingUrl'),
+}, 'MollieOrderField', monacoOptions, codeEditorOptions) }}
 
 {{ booleanMenuField({
     label: "Complete banktransfer orders"|t('commerce-mollie-plus'),

@@ -630,6 +630,7 @@ class Gateway extends OffsiteGateway
                 Craft::warning('Successful capture child transaction for “' . $transactionHash . '“ already exists.', 'commerce');
                 $response->data = 'ok';
 
+                $transaction->order->updateOrderPaidInformation();
                 $mutex->release($transactionLockName);
                 return $response;
             }
@@ -642,6 +643,7 @@ class Gateway extends OffsiteGateway
                 Craft::warning('Successful capture child transaction for “' . $transactionHash . '“ already exists.', 'commerce');
                 $response->data = 'ok';
 
+                $lastTransaction->order->updateOrderPaidInformation();
                 $mutex->release($transactionLockName);
                 return $response;
             }

@@ -1,5 +1,9 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 2.3.1 - 2024-02-01
+
+- Check the order payment info when processing the webhook if the transaction already exist
+
 ## 2.3.0 - 2023-09-27
 
 ### Added

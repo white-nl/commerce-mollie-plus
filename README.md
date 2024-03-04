@@ -46,7 +46,9 @@ Event::on(
 
 ## "Mollie Plus" versus "Mollie for Craft Commerce"
 
-Mollie plus is a drop-in replacement[^1] for Pixel & Tonic’s Mollie for Commerce plugin. We advise to replace it by Mollie Plus. It will be a seamless transition, since they function similarly.
+Mollie plus is a drop-in replacement[^1] for Pixel & Tonic’s Mollie for Commerce plugin. We advise to replace it by Mollie Plus. It will be a seamless transition.
+
+(Don't directly replace your current Mollie gateway, instead create a new gateway as the webhook handling depends on different responses)
 
 [^1]: The plugin will run completely independently of the Mollie plugin. You even can run both plugins at the same time.
 

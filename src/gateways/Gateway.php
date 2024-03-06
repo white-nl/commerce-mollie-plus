@@ -6,6 +6,7 @@ use Craft;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
 use craft\commerce\helpers\Currency;
+use craft\commerce\models\PaymentCurrency;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
 use craft\commerce\omnipay\base\OffsiteGateway;
@@ -749,6 +750,19 @@ class Gateway extends OffsiteGateway
             $request = $event->request;
         }
 
+        $calculatedItemsTotal = 0;
+        foreach ($request['items'] as $item) {
+            /* @var \Omnipay\Common\Item $item */;
+            $itemParams = $item->getParameters();
+            $calculatedItemsTotal += $itemParams['totalAmount'] ?? 0;
+        }
+
+        $paymentCurrency = Commerce::getInstance()?->getPaymentCurrencies()?->getPaymentCurrencyByIso($transaction->paymentCurrency);
+        /* Override the calculation of the total amount
+         * since sometimes we can get a difference with our calculations and commerce
+        */
+        $request['amount'] = Currency::round($calculatedItemsTotal, $paymentCurrency);
+
         return $request;
     }
 
@@ -761,6 +775,8 @@ class Gateway extends OffsiteGateway
 
         $priceCheck = 0;
         $count = -1;
+
+        $paymentCurrency = Commerce::getInstance()?->getPaymentCurrencies()?->getPaymentCurrencyByIso($order->paymentCurrency);
 
         foreach ($order->getLineItems() as $item) {
             $price = Currency::round($item->getSalePrice());
@@ -808,12 +824,12 @@ class Gateway extends OffsiteGateway
 
                 $items[] = $this->setMollieLineItem(
                     'physical',
+                    $paymentCurrency,
                     $description,
                     $item->qty,
                     $price + $vatAmountUnit + $itemShipping,
                     abs($item->getDiscount()),
-                    sprintf('%0.2f', $vatRate * 100),
-                    $totalTax,
+                    number_format($vatRate * 100, 2, '.', ''),
                     $totalPrice,
                     $item->getSku()
                 );
@@ -831,12 +847,12 @@ class Gateway extends OffsiteGateway
                 $count++;
                 $items[] = $this->setMollieLineItem(
                     'shipping_fee',
+                    $paymentCurrency,
                     $name,
                     1,
                     $price,
                     0.0,
-                    '0.00',
-                    0.0,
+                    0.00,
                     $price
                 );
 
@@ -847,12 +863,12 @@ class Gateway extends OffsiteGateway
                 $count++;
                 $items[] = $this->setMollieLineItem(
                     'discount',
+                    $paymentCurrency,
                     $name,
                     1,
                     $price,
                     0.0,
-                    '0.00',
-                    0.0,
+                    0.00,
                     $price
                 );
 
@@ -863,12 +879,12 @@ class Gateway extends OffsiteGateway
                 $count++;
                 $items[] = $this->setMollieLineItem(
                     'physical',
+                    $paymentCurrency,
                     $name,
                     1,
                     $price,
                     0.0,
-                    '0.00',
-                    0.0,
+                    0.00,
                     $price
                 );
 
@@ -943,18 +959,26 @@ class Gateway extends OffsiteGateway
 
     /**
      * @param string $type
+     * @param PaymentCurrency|null $currency
      * @param string $name
      * @param int $quantity
      * @param float $unitPrice
      * @param float $discountAmount
-     * @param string $vatRate
-     * @param float $vatAmount
+     * @param float $vatRate
      * @param float $totalAmount
      * @param string $sku
      * @return Item
      */
-    private function setMollieLineItem(string $type, string $name, int $quantity, float $unitPrice, float $discountAmount, string $vatRate, float $vatAmount, float $totalAmount, string $sku = ''): Item
+    private function setMollieLineItem(string $type, ?PaymentCurrency $currency, string $name, int $quantity, float $unitPrice, float $discountAmount, float $vatRate, float $totalAmount, string $sku = ''): Item
     {
+        $unitPrice = $this->convertPrice($unitPrice, $currency);
+        $discountAmount = $this->convertPrice($discountAmount, $currency);
+        $totalAmount = $this->convertPrice($totalAmount, $currency);
+
+        $vatAmount = 0.00;
+        if ($totalAmount > 0 && $vatRate > 0) {
+            $vatAmount = Currency::round($totalAmount * ($vatRate / (100.00 + $vatRate)), $currency);
+        }
         $mollieItem = new Item();
         $mollieItem->setType($type);
         $mollieItem->setName($name);
@@ -962,7 +986,7 @@ class Gateway extends OffsiteGateway
         $mollieItem->setQuantity($quantity);
         $mollieItem->setUnitPrice($unitPrice);
         $mollieItem->setDiscountAmount($discountAmount);
-        $mollieItem->setVatRate($vatRate);
+        $mollieItem->setVatRate(sprintf('%0.2f', $vatRate));
         $mollieItem->setVatAmount($vatAmount);
         $mollieItem->setTotalAmount($totalAmount);
 
@@ -1004,5 +1028,11 @@ class Gateway extends OffsiteGateway
             }
         }
         return $request;
+    }
+
+    private function convertPrice(float|int $price, string $paymentCurrencyIso): float
+    {
+        $paymentCurrency = Commerce::getInstance()?->getPaymentCurrencies()?->getPaymentCurrencyByIso($paymentCurrencyIso);
+        return Currency::round(Commerce::getInstance()?->getPaymentCurrencies()->convert($price, $paymentCurrency), $paymentCurrency);
     }
 }

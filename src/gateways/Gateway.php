@@ -5,7 +5,6 @@ namespace white\commerce\mollie\plus\gateways;
 use Craft;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
-use craft\commerce\helpers\Currency;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
 use craft\commerce\omnipay\base\OffsiteGateway;
@@ -540,9 +539,10 @@ class Gateway extends OffsiteGateway
         }
         try {
             $capture = parent::capture($transaction, $reference);
-        } finally {
             $mutex->release($transactionLockName);
             return $capture;
+        } finally {
+            $mutex->release($transactionLockName);
         }
     }
 

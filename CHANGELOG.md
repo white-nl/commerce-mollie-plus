@@ -1,5 +1,11 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## Unreleased
+
+### Added
+
+ - Added support for multi currency payments
+
 ## 2.3.1 - 2024-02-01
 
 - Check the order payment info when processing the webhook if the transaction already exist

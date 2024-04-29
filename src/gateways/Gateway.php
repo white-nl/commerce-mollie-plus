@@ -770,7 +770,8 @@ class Gateway extends OffsiteGateway
                 ->convertCurrency(
                     $item->getSalePrice(),
                     $currency,
-                    $paymentCurrency
+                    $paymentCurrency,
+                    true,
                 );
 
             if ($price != 0) {
@@ -798,7 +799,8 @@ class Gateway extends OffsiteGateway
                             ->convertCurrency(
                                 $item->getShippingCost() / $item->qty,
                                 $currency,
-                                $paymentCurrency
+                                $paymentCurrency,
+                                true,
                             );
                     }
                 }
@@ -814,7 +816,8 @@ class Gateway extends OffsiteGateway
                     ->convertCurrency(
                         $totalTax,
                         $currency,
-                        $paymentCurrency
+                        $paymentCurrency,
+                        true,
                     );
 
                 if ($vatRate === null) {
@@ -826,7 +829,8 @@ class Gateway extends OffsiteGateway
                     ->convertCurrency(
                         $item->getTotal(),
                         $currency,
-                        $paymentCurrency
+                        $paymentCurrency,
+                        true,
                     );
 
                 $vatAmountUnit = 0;
@@ -836,7 +840,8 @@ class Gateway extends OffsiteGateway
                         ->convertCurrency(
                             $totalTax / $item->qty,
                             $currency,
-                            $paymentCurrency
+                            $paymentCurrency,
+                            true,
                         );
                 }
 
@@ -846,6 +851,7 @@ class Gateway extends OffsiteGateway
                         $item->getDiscount(),
                         $currency,
                         $paymentCurrency,
+                        true,
                     );
 
                 $items[] = $this->setMollieLineItem(
@@ -872,7 +878,8 @@ class Gateway extends OffsiteGateway
                 ->convertCurrency(
                     $adjustment->amount,
                     $currency,
-                    $paymentCurrency
+                    $paymentCurrency,
+                    true,
                 );
             $name = empty($adjustment->name) ? $adjustment->type . " " . $count : $adjustment->name . (!empty($adjustment->description) ? " - " . $adjustment->description : '');
             if ($adjustment->type == 'shipping' && !$adjustment->included && !$adjustment->lineItemId && $price !== 0.0) {
@@ -930,6 +937,7 @@ class Gateway extends OffsiteGateway
                 $order->getTotalPrice(),
                 $currency,
                 $paymentCurrency,
+                true,
             );
         $same = $priceCheck === $totalPrice;
 

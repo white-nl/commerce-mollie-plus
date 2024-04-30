@@ -5,6 +5,7 @@ namespace white\commerce\mollie\plus\gateways;
 use Craft;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\helpers\Currency;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
 use craft\commerce\omnipay\base\OffsiteGateway;
@@ -930,7 +931,7 @@ class Gateway extends OffsiteGateway
                 $priceCheck += $price;
             }
         }
-        
+
         $totalPrice = Commerce::getInstance()
             ->getPaymentCurrencies()
             ->convertCurrency(
@@ -939,7 +940,7 @@ class Gateway extends OffsiteGateway
                 $paymentCurrency,
                 true,
             );
-        $same = $priceCheck === $totalPrice;
+        $same = Currency::round($priceCheck) === Currency::round($totalPrice);
 
         if (!$same) {
             Craft::error('Item bag total price does not equal the orders totalPrice, some payment gateways will complain.', __METHOD__);

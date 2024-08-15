@@ -5,6 +5,7 @@ namespace white\commerce\mollie\plus\gateways;
 use Craft;
 use craft\commerce\base\RequestResponseInterface;
 use craft\commerce\elements\Order;
+use craft\commerce\helpers\Currency;
 use craft\commerce\models\payments\BasePaymentForm;
 use craft\commerce\models\Transaction;
 use craft\commerce\omnipay\base\OffsiteGateway;
@@ -806,19 +807,28 @@ class Gateway extends OffsiteGateway
                 }
 
                 if ($taxIncluded) {
-                    $totalTax = $item->getTaxIncluded();
+                    if ($currency === $paymentCurrency) {
+                        $totalTax = Commerce::getInstance()
+                            ->getPaymentCurrencies()
+                            ->convertCurrency(
+                                $item->getTaxIncluded(),
+                                $currency,
+                                $paymentCurrency,
+                                true,
+                            );
+                    } else {
+                        $totalTax = Currency::round($price - ($price/($vatRate + 1)));
+                    }
                 } else {
-                    $totalTax = $item->getTax();
+                    $totalTax = Commerce::getInstance()
+                        ->getPaymentCurrencies()
+                        ->convertCurrency(
+                            $item->getTaxIncluded(),
+                            $currency,
+                            $paymentCurrency,
+                            true,
+                        );
                 }
-
-                $totalTax = Commerce::getInstance()
-                    ->getPaymentCurrencies()
-                    ->convertCurrency(
-                        $totalTax,
-                        $currency,
-                        $paymentCurrency,
-                        true,
-                    );
 
                 if ($vatRate === null) {
                     $vatRate = ($totalTax) / (($price * $item->qty) - $totalTax);

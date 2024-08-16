@@ -1,5 +1,11 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 2.5.0 - 2024-08-16
+
+### Fixed
+
+ - Round the converted currencies to prevent precision errors [#22](https://github.com/white-nl/commerce-mollie-plus/issues/22)
+
 ## 2.4.0 - 2024-03-26
 
 ### Added

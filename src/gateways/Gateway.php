@@ -765,6 +765,15 @@ class Gateway extends OffsiteGateway
         $priceCheck = 0;
         $count = -1;
 
+        $totalPrice = Commerce::getInstance()
+            ->getPaymentCurrencies()
+            ->convertCurrency(
+                $order->getTotal(),
+                $currency,
+                $paymentCurrency,
+                true,
+            );
+
         foreach ($order->getLineItems() as $item) {
             $price = Commerce::getInstance()
                 ->getPaymentCurrencies()
@@ -817,7 +826,7 @@ class Gateway extends OffsiteGateway
                                 true,
                             );
                     } else {
-                        $totalTax = Currency::round($price - ($price/($vatRate + 1)));
+                        $totalTax = Currency::round($price - ($price / ($vatRate + 1)));
                     }
                 } else {
                     $totalTax = Commerce::getInstance()
@@ -834,7 +843,7 @@ class Gateway extends OffsiteGateway
                     $vatRate = ($totalTax) / (($price * $item->qty) - $totalTax);
                 }
 
-                $totalPrice = Commerce::getInstance()
+                $totalItemPrice = Commerce::getInstance()
                     ->getPaymentCurrencies()
                     ->convertCurrency(
                         $item->getTotal(),
@@ -872,17 +881,24 @@ class Gateway extends OffsiteGateway
                     abs($discountAmount),
                     sprintf('%0.2f', $vatRate * 100),
                     $totalTax,
-                    $totalPrice,
+                    $totalItemPrice,
                     $item->getSku()
                 );
 
-                $priceCheck += $totalPrice;
+                $priceCheck += $totalItemPrice;
             }
         }
 
         $count = -1;
 
-        foreach ($order->getAdjustments() as $adjustment) {
+        $adjustments = $order->getAdjustments();
+
+        foreach ($adjustments as $key => $adjustment) {
+            if ($adjustment->included || $adjustment->lineItemId || $adjustment->amount === 0.0) {
+                unset($adjustments[$key]);
+            }
+        }
+        foreach ($adjustments as $key => $adjustment) {
             $price = Commerce::getInstance()
                 ->getPaymentCurrencies()
                 ->convertCurrency(
@@ -891,8 +907,19 @@ class Gateway extends OffsiteGateway
                     $paymentCurrency,
                     true,
                 );
+
+            $priceCheck += $price;
+
+            if (
+                ($key === array_key_last($adjustments))
+                && $priceCheck !== $totalPrice
+            ) {
+                $priceDifference = Currency::round($totalPrice - $priceCheck);
+                $priceCheck += $priceDifference;
+                $price += $priceDifference;
+            }
             $name = empty($adjustment->name) ? $adjustment->type . " " . $count : $adjustment->name . (!empty($adjustment->description) ? " - " . $adjustment->description : '');
-            if ($adjustment->type == 'shipping' && !$adjustment->included && !$adjustment->lineItemId && $price !== 0.0) {
+            if ($adjustment->type == 'shipping') {
                 $count++;
                 $items[] = $this->setMollieLineItem(
                     'shipping_fee',
@@ -904,11 +931,9 @@ class Gateway extends OffsiteGateway
                     0.0,
                     $price
                 );
-
-                $priceCheck += $price;
             }
 
-            if ($adjustment->type == 'discount' && !$adjustment->included && !$adjustment->lineItemId && $price !== 0.0) {
+            if ($adjustment->type == 'discount') {
                 $count++;
                 $items[] = $this->setMollieLineItem(
                     'discount',
@@ -920,11 +945,9 @@ class Gateway extends OffsiteGateway
                     0.0,
                     $price
                 );
-
-                $priceCheck += $price;
             }
 
-            if ($adjustment->type == 'tax' && !$adjustment->included && !$adjustment->lineItemId && $price !== 0.0) {
+            if ($adjustment->type == 'tax') {
                 $count++;
                 $items[] = $this->setMollieLineItem(
                     'physical',
@@ -936,20 +959,10 @@ class Gateway extends OffsiteGateway
                     0.0,
                     $price,
                 );
-
-                $priceCheck += $price;
             }
         }
-        
-        $totalPrice = Commerce::getInstance()
-            ->getPaymentCurrencies()
-            ->convertCurrency(
-                $order->getTotalPrice(),
-                $currency,
-                $paymentCurrency,
-                true,
-            );
-        $same = $priceCheck === $totalPrice;
+
+        $same = Currency::round($priceCheck) === Currency::round($totalPrice);
 
         if (!$same) {
             Craft::error('Item bag total price does not equal the orders totalPrice, some payment gateways will complain.', __METHOD__);

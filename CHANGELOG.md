@@ -4,7 +4,7 @@
 
 ### Fixed
 
- - Round the converted currencies to prevent precision errors
+ - Round the converted currencies to prevent precision errors [#22](https://github.com/white-nl/commerce-mollie-plus/issues/22)
 
 ## 2.4.0 - 2024-03-26
 

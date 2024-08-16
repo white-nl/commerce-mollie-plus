@@ -1,6 +1,6 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
-## Unreleased
+## 2.5.0 - 2024-08-16
 
 ### Fixed
 

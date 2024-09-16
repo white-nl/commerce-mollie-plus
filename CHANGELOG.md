@@ -1,5 +1,14 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## 2.6.0 - 2024-09-16
+
+### Fixed
+ - Fixed a javascript bug to load the mollie components for credit card payments
+
+### Changed
+ - Removed the voucher method from the `fetchPaymentMethods()` response
+ - When paying with a different payment currency no tax/shipping costs will be added seperatly to the mollie item to prevent rounding/calculation errors
+
 ## 2.5.0 - 2024-08-16
 
 ### Fixed

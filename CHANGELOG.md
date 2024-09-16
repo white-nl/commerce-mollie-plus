@@ -8,6 +8,10 @@
 ### Fixed
  - Fixed a javascript bug to load the mollie components for credit card payments
 
+### Changed
+ - When paying with a different payment currency no tax/shipping costs will be added seperatly to the mollie item to prevent rounding/calculation errors
+ - Removed the ideal issuers from the payment form to support Ideal 2.0
+
 ## 2.5.0 - 2024-08-16
 
 ### Fixed

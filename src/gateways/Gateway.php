@@ -802,6 +802,14 @@ class Gateway extends OffsiteGateway
                     );
                     $priceCheck += $price;
                 } else {
+                    $price = Commerce::getInstance()
+                        ->getPaymentCurrencies()
+                        ->convertCurrency(
+                            $item->getSalePrice(),
+                            $currency,
+                            $paymentCurrency,
+                            true,
+                        );
                     foreach ($item->getAdjustments() as $adjustment) {
                         if ($adjustment->type == 'tax') {
                             if ($adjustment->included) {
@@ -842,7 +850,7 @@ class Gateway extends OffsiteGateway
                         $totalTax = Commerce::getInstance()
                             ->getPaymentCurrencies()
                             ->convertCurrency(
-                                $item->getTaxIncluded(),
+                                $item->getTax(),
                                 $currency,
                                 $paymentCurrency,
                                 true,

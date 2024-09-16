@@ -1,5 +1,10 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## Unreleased
+
+### Fixed
+ - Fixed a javascript bug to load the mollie components for credit card payments
+
 ## 2.5.0 - 2024-08-16
 
 ### Fixed

@@ -1,6 +1,6 @@
 {
     "name": "white-nl/commerce-mollie-plus",
-    "description": "Commerce Mollie Plus Plugin for Craft 4",
+    "description": "Commerce Mollie Plus Plugin for Craft 5",
     "type": "craft-plugin",
     "keywords": [
         "mollie",
@@ -17,10 +17,10 @@
     ],
     "license": "proprietary",
     "require": {
-        "php": "^8.0.2",
-        "craftcms/cms": "^4.0.0",
-        "craftcms/commerce": "^4.0.0",
-        "craftcms/commerce-omnipay": "^4.0.0",
+        "php": "^8.2",
+        "craftcms/cms": "^5.0.0",
+        "craftcms/commerce": "^5.0.0",
+        "craftcms/commerce-omnipay": "^4.1.0",
         "omnipay/mollie": "^5.5",
         "nystudio107/craft-code-editor": "^1.0"
     },
@@ -54,9 +54,6 @@
             "yiisoft/yii2-composer": true,
             "craftcms/plugin-installer": true,
             "php-http/discovery": true
-        },
-        "platform": {
-            "php": "8.0.2"
         }
     }
 }

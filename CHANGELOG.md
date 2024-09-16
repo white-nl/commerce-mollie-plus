@@ -1,6 +1,6 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
-## Unreleased
+## 3.0.0 - 2024-09-16
 
 ### Added
  - Added Craft Commerce 5 compatibility.

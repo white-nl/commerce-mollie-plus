@@ -24,7 +24,7 @@
                         <option value="{{ issuer.id }}">{{ issuer.name }} - {{ issuer.paymentMethod }}</option>
                     {% endfor %}
                     </select>
-                {% elseif method.name|lower is same as('credit card') %}
+                {% elseif method.id|lower is same as('creditcard') %}
                     <strong>{{ "Debit or Credit Card"|t }}</strong>
                     <br>
                     <div class="form-fields">

@@ -7,6 +7,7 @@
 
 ### Changed
  - Removed the voucher method from the `fetchPaymentMethods()` response
+ - When paying with a different payment currency no tax/shipping costs will be added seperatly to the mollie item to prevent rounding/calculation errors
 
 ## 2.5.0 - 2024-08-16
 

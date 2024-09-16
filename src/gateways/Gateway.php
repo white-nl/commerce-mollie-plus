@@ -351,11 +351,13 @@ class Gateway extends OffsiteGateway
 
         $paymentMethods = [];
         foreach ($response->getData()['_embedded']["methods"] as $method) {
-            $paymentMethods[] = [
-                'id' => $method['id'],
-                'name' => $method['description'],
-                'logo' => $method['image']['svg'],
-            ];
+            if ($method['id'] !== 'voucher') {
+                $paymentMethods[] = [
+                    'id' => $method['id'],
+                    'name' => $method['description'],
+                    'logo' => $method['image']['svg'],
+                ];
+            }
         }
 
         return $paymentMethods;

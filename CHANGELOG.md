@@ -5,6 +5,9 @@
 ### Fixed
  - Fixed a javascript bug to load the mollie components for credit card payments
 
+### Changed
+ - Removed the voucher method from the `fetchPaymentMethods()` response
+
 ## 2.5.0 - 2024-08-16
 
 ### Fixed

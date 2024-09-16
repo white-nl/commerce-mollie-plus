@@ -5,12 +5,11 @@ Mollie Plus plugin for Craft CMS, official version by WHITE Digital Agency
 
 ## Requirements
 
-* This plugin requires Craft CMS **4.0.0** or later.
-* This plugin requires Craft Commerce version **4.0** or later.
+* This plugin requires Craft CMS **5.0.0** or later.
+* This plugin requires Craft Commerce version **5.0** or later.
 * A valid Mollie account is required. Don't have an account yet? [Create a Mollie account](https://www.mollie.com/dashboard/signup/white?lang=en).
 * The Craft website should be publicly accessible.
 * To configure the plugin, changing settings should be allowed in Craft (allow admin changes), and a user who is an Admin in Craft.
-* This plugin is compatible with Composer 2.0.
 
 ## Installation
 

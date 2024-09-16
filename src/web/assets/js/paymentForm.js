@@ -98,9 +98,9 @@ function initMollie() {
         form.addEventListener('submit', async e => {
             e.preventDefault();
 
-            $paymentMethod = document.querySelector('[name="' + paymentFormNamespace + '[paymentMethod]"]');
+            $paymentMethod = document.querySelector('[name="' + paymentFormNamespace + '[paymentMethod]"]:checked');
 
-            if ($paymentMethod.value == 'creditcard') {
+            if ($paymentMethod !== null && $paymentMethod.value == 'creditcard') {
                 const { token, error } = await mollie.createToken();
 
                 if (error) {

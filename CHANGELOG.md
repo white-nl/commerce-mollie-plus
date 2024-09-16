@@ -3,7 +3,10 @@
 ## Unreleased
 
 ### Added
-- Added Craft Commerce 5 compatibility.
+ - Added Craft Commerce 5 compatibility.
+
+### Fixed
+ - Fixed a javascript bug to load the mollie components for credit card payments
 
 ## 2.5.0 - 2024-08-16
 

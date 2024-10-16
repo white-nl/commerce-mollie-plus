@@ -762,7 +762,10 @@ class Gateway extends OffsiteGateway
     {
         $currency = $order->currency;
         $paymentCurrency = $order->paymentCurrency;
-        $storeId = $order->storeId;
+
+        $storeId = version_compare(Craft::$app->getVersion(), '5.0.0-alpha.1') >= 0
+            ? $order->storeId
+            : -1;
         $items = [];
 
         $priceCheck = 0;

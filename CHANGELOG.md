@@ -1,6 +1,6 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
-## Unreleased
+## 2.6.1 - 2024-10-18
 
 ### Fixed
  - Change strict type comparison of sale price to prevent errors with free lineItems

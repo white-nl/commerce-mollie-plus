@@ -770,7 +770,7 @@ class Gateway extends OffsiteGateway
         $totalPrice = $order->getPaymentAmount();
 
         foreach ($order->getLineItems() as $item) {
-            if ($item->getSalePrice() !== 0) {
+            if ($item->getSalePrice() != 0) {
                 $count++;
                 $defaultDescription = Craft::t('commerce', 'Item ID') . ' ' . $item->id;
                 $description = !empty($item->getDescription()) ? $item->getDescription() : $defaultDescription;

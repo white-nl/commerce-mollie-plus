@@ -2,12 +2,15 @@
 
 namespace white\commerce\mollie\plus;
 
+use Craft;
 use craft\base\Plugin;
 use craft\commerce\elements\Order;
 use craft\commerce\events\OrderStatusEvent;
+use craft\commerce\events\TransactionEvent;
 use craft\commerce\records\Transaction;
 use craft\commerce\services\Gateways;
 use craft\commerce\services\OrderHistories;
+use craft\commerce\services\Payments;
 use craft\events\RegisterComponentTypesEvent;
 use nystudio107\codeeditor\autocompletes\CraftApiAutocomplete;
 use nystudio107\codeeditor\autocompletes\TwigLanguageAutocomplete;
@@ -100,6 +103,39 @@ class CommerceMolliePlusPlugin extends Plugin
                             $order->isCompleted = false;
                         }
                     }
+                }
+            }
+        );
+
+        Event::on(
+            Payments::class,
+            Payments::EVENT_BEFORE_CAPTURE_TRANSACTION,
+            static function(TransactionEvent $event): void {
+                $transaction = $event->transaction;
+                $gateway = $transaction->getGateway();
+                if ($gateway instanceof Gateway) {
+                    $parentTransaction = $transaction->getParent();
+                    $transactionLockName = 'mollieTransaction:' . $parentTransaction->hash;
+                    $mutex = Craft::$app->getMutex();
+
+                    if (!$mutex->acquire($transactionLockName, 15)) {
+                        throw new \Exception('Unable to acquire a lock for transaction: ' . $parentTransaction->hash);
+                    }
+                }
+            }
+        );
+
+        Event::on(
+            Payments::class,
+            Payments::EVENT_AFTER_CAPTURE_TRANSACTION,
+            static function(TransactionEvent $event): void {
+                $transaction = $event->transaction;
+                $gateway = $transaction->getGateway();
+                if ($gateway instanceof Gateway) {
+                    $parentTransaction = $transaction->getParent();
+                    $transactionLockName = 'mollieTransaction:' . $parentTransaction->code;
+                    $mutex = Craft::$app->getMutex();
+                    $mutex->release($transactionLockName);
                 }
             }
         );

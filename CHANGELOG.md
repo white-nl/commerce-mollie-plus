@@ -1,5 +1,10 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
+## Unreleased and not yet tested for Craft 5
+
+### Fixed
+- Fixed an issue with banktransfers where orders are marked as completed unless the `completeBanktransferOrders` setting when last transaction status is redirect.
+
 ## 3.0.0 - 2024-09-16
 
 ### Added

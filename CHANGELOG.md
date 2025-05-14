@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Fixed
-- Fixed an issue with banktransfers where orders are marked as completed unless the `completeBanktransferOrders` setting when last transaction status is redirect
+- Fixed an issue with banktransfers where orders are marked as completed unless the `completeBanktransferOrders` setting when last transaction status is `redirect`
 
 ## 2.6.1 - 2024-10-18
 

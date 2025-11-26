@@ -53,6 +53,6 @@ Mollie plus is a drop-in replacement[^1] for Pixel & Tonic’s Mollie for Commer
 
 ## Documentation
 
-https://white.nl/en/craft-plugins/mollie/docs/
+[Documentation](https://user-guide.white.nl/mollie-plus/)
 
 *Mollie Plus for Craft CMS is brought to you by WHITE Digital Agency*

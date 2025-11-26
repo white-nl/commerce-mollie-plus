@@ -93,7 +93,7 @@ class CommerceMolliePlusPlugin extends Plugin
                 $transaction = $order->getLastTransaction();
                 $gateway = $transaction?->getGateway();
                 if ($gateway instanceof Gateway && !$gateway->completeBanktransferOrders) {
-                    if ($transaction->status === Transaction::STATUS_PROCESSING) {
+                    if ($transaction->status === Transaction::STATUS_PROCESSING || $transaction->status === Transaction::STATUS_REDIRECT) {
                         $transactionMessage = json_decode($transaction->message);
                         if ($transactionMessage->method === 'banktransfer') {
                             $order->orderStatusId = null;

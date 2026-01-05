@@ -1,6 +1,6 @@
 # Release Notes for Commerce Mollie Plus Plugin
 
-## Unreleased
+## 3.0.2 - 2026-01-05
 
 ### Fixed
 - Allow vouchers in discount adjustment handling

@@ -876,7 +876,7 @@ class Gateway extends OffsiteGateway
                 );
             }
 
-            if ($adjustment->type == 'discount') {
+            if ($adjustment->type == 'discount' || $adjustment->type == 'voucher') {
                 $count++;
                 $items[] = $this->setMollieLineItem(
                     'discount',

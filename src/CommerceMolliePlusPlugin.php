@@ -76,7 +76,7 @@ class CommerceMolliePlusPlugin extends Plugin
                     $transaction->canCapture() &&
                     $transaction->type === Transaction::TYPE_AUTHORIZE &&
                     $transaction->status === Transaction::STATUS_SUCCESS &&
-                    in_array($newStatus, $gateway->orderStatusToCapture)
+                    in_array($newStatus, $gateway->orderStatusToCapture ?: [])
                 ) {
                     $gateway->createShipment($transaction->reference, $order);
                 }
